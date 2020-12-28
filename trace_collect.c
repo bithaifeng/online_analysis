@@ -52,7 +52,7 @@ int WRITE(int handle, void *buf, int nbyte){
 
 #define phys_to_virtual(phys) (phys - DMA_REG_ADDR + memory_dev_addr)
 
-
+int last_kernel_trace_seq = -1;
 //#define STORE_TRACE
 
 #define MAX_PRINT 10
@@ -112,7 +112,8 @@ int fp;
 int last_hmtt_seq = -1;
 int last_kernel_seq = -1;
 int start_cycle = 0;
-unsigned long long miss_set_pte = 0, miss_free_pte = 0;
+volatile unsigned long long miss_set_pte = 0, miss_free_pte = 0;
+volatile unsigned long long last_miss_set_pte = 0, last_miss_free_pte = 0;
 
 
 unsigned long long kt_hmtt_addr;
@@ -204,6 +205,9 @@ char free_page_table_get_clear = 0x22;
 char free_page_table_get_clear_full = 0x33;
 unsigned long long skip_free_in_set = 0;
 
+unsigned long long redundant_set_pte = 0, redundant_free_pte = 0;
+
+
 int is_kernel_tag_trace(unsigned long long addr) {
 	    return addr >= kernel_config_entry && addr < kernel_config_end;
 }
@@ -243,7 +247,7 @@ void init_kt_collect(){
 	        printf("Begin Dump Page Table Trace: write 0 failure!\n");
         else
                 printf("Begin Dump Page Table Trace: write 0 success!\n");
-        sleep(1);
+//        sleep(1);
 
 	//start collect pte
 	command = CMD_PAGE_TABLE_START_TRACE;
@@ -367,19 +371,13 @@ void analysis_tmp_buffer(){
 void store_to_kt_buffer(unsigned long* start_addr, int len){
         if( glb_kt_writing_addr > (glb_kt_reading_addr + KT_HMTT_SIZE)){
 //      if((kt_hmtt_writing_addr + len) % KT_HMTT_SIZE < kt_hmtt_reading_addr){
-//              printk("**************\n");
-//              printk("**************\n");
-//              printk("**************\n");
-//              printk("**************\n");
                 printf("***Error kt buffer\n****\n");
                 printf("kt_hmtt_writing_addr = %lx, kt_hmtt_reading_addr = %lx, len = %d\n", kt_hmtt_writing_addr, kt_hmtt_reading_addr, len);
-//              printk("**************\n");
-//              printk("**************\n");
-//              printk("**************\n");
         }
-        glb_kt_writing_addr += len * sizeof(unsigned long);
+	//先拷贝再更新
         memcpy(kt_hmtt_addr + kt_hmtt_writing_addr,start_addr, len * sizeof(unsigned long));
         kt_hmtt_writing_addr = (kt_hmtt_writing_addr + len * sizeof(unsigned long)) % KT_HMTT_SIZE;
+        glb_kt_writing_addr += len * sizeof(unsigned long);
 }
 int finish_kt_analysis = 1;
 
@@ -449,7 +447,13 @@ int analysis_kt_buffer(void  *arg){
 //                              return ;
 
                         }
-
+			if( (last_kernel_trace_seq + 1) % KERNEL_TRACE_SEQ_NUM != kernel_trace_seq ){
+				printf("last_kernel_trace_seq = %d, kernel_trace_seq = %d\n", last_kernel_trace_seq, kernel_trace_seq);
+			}
+			else{
+//				printf("kernel_trace_seq = %d\n", kernel_trace_seq);
+			}
+			last_kernel_trace_seq = kernel_trace_seq;
                         int tag_seq = (int)(*(char*)(kt_ch_tmp + 13));
                         switch (kernel_trace_tag) {
                                 case SET_PTE_TAG:
@@ -463,8 +467,9 @@ int analysis_kt_buffer(void  *arg){
   //                                      }
                                         int tmp = last_hmtt_seq - kernel_trace_seq;
                                         // 上一条trace 本应该出现在现在的后面，但是发生乱序，其实已经解析
-                                        if(tmp > 0 && tmp < 20){
-                                                last_hmtt_seq = kernel_trace_seq;
+                                        if(tmp >= 0 && tmp < 20){ //相等也不做
+						// 之前的大，不需要更新
+//                                                last_hmtt_seq = kernel_trace_seq;
                                                 continue;
 //                                                return ;
 
@@ -473,6 +478,7 @@ int analysis_kt_buffer(void  *arg){
                                                 miss_set_pte ++;
                                                 if(magic == set_page_table_magic){
                                                 // should skip here, but we uss set_pte kernel tag
+							redundant_set_pte ++;
                                                         tagp += 1;
                                                         pid = (*(int*)((kt_ch_tmp + 1)));
                                                         tagp += 4;
@@ -491,9 +497,11 @@ int analysis_kt_buffer(void  *arg){
                                                         get_kt_trace();
                                                         magic =  (*(char*)(kt_ch_tmp));
                                                         tag_seq = (int)(*(char*)(kt_ch_tmp + 13));
-							analysis_tmp_buffer();
+//							analysis_tmp_buffer();
                                                 }
                                                 else{
+							
+							redundant_free_pte ++;
                                                         pid = (*(int*)((kt_ch_tmp + 1)));
                                                         val = (*(uint64_t*)(kt_ch_tmp + 5));
                                                         ppn = val & 0xffffff;
@@ -528,7 +536,7 @@ int analysis_kt_buffer(void  *arg){
                                 }
                                 ppn2pid[ppn] = pid;
                                 ppn2vpn[ppn] = vpn;
-				analysis_tmp_buffer();
+//				analysis_tmp_buffer();
 //                                vpn2ppn[vpn] = ppn;
 
 
@@ -544,7 +552,7 @@ int analysis_kt_buffer(void  *arg){
                                         int tmp = last_hmtt_seq - kernel_trace_seq;
                                         // 上一条trace 本应该出现在现在的后面，但是发生乱序，其实已经解析
                                         if(tmp > 0 && tmp < 20){
-                                                last_hmtt_seq = kernel_trace_seq;
+//                                                last_hmtt_seq = kernel_trace_seq;
                                                 continue;
 //                                                return ;
 
@@ -643,6 +651,7 @@ int analysis_kt_buffer(void  *arg){
 void get_kt_trace(){
         //memcpy from   to kt_ch_tmp
         if(start_cycle == 0){
+		while(*dev_readptr == *dev_writeptr){}
                 if(*dev_readptr + 13 < buffer_size){
                         memcpy(kt_ch_tmp, p_kernel_trace_buf + *dev_readptr , 13);
                         *dev_readptr += 13;
@@ -824,32 +833,22 @@ void analysis_single_trace(char *trace_start){
         paddr   = (unsigned long)(paddr << 6);
 	record.paddr = paddr;
 	record.rw = r_w;
-//	return ;
 	if (record.paddr == 0 && timer == 0){
 		//invalid trace
 		duration_all += 256;
 		return ;
 	}
-
-//[OK]
-//	return ;
 	duration_all += timer;
 	record.tm = duration_all;
 	if (record.paddr >= (2ULL << 30)) {
 	        record.paddr += (2ULL << 30);
         }
-//[ok]	return ;
-/*// [why ????? 为啥会缓冲区溢出]
 	if(has_print < 10){
-		printf("id = %d, seq_no = %d ,r_w = %d, paddr = %lx \n",  has_print,seq_no, r_w, record.paddr);
+//		printf("id = %d, seq_no = %d ,r_w = %d, paddr = %lx \n",  has_print,seq_no, r_w, record.paddr);
 		has_print ++;
 	}
-*/
-//	return ;
 	if (is_kernel_tag_trace(record.paddr) ){
 		//This is a hmtt kernel tag trace, we should read kernel trace buffer now
-//[ERROR]	
-//		return ;
 		//only anaysis read trace
                 if(r_w == 0) return;
                 else{
@@ -858,123 +857,14 @@ void analysis_single_trace(char *trace_start){
                         return ;
 
                 }
-		int kernel_trace_seq = (record.paddr - kernel_config_entry) / (KERNEL_TRACE_CONFIG_SIZE << 20);
-		if (kernel_trace_seq >= KERNEL_TRACE_SEQ_NUM) {
-			fprintf(stderr, "#### Invalid kernel trace seq:addr=0x%llx, seq=%d\n", record.paddr, kernel_trace_seq);
-//			exit(-1);
-		}
-		unsigned long long kernel_trace_seq_entry =
-			                    record.paddr - kernel_config_entry - kernel_trace_seq * (KERNEL_TRACE_CONFIG_SIZE << 20);
-		int kernel_trace_tag = (kernel_trace_seq_entry) / TAG_ACCESS_SIZE;
-		if((kernel_trace_seq_entry) % TAG_ACCESS_SIZE != 0)
-                {
-                        error_aligning ++;
-                               // continue;
-                         return ;
-                }
-		
-		if (kernel_trace_tag >= TAG_MAX_POS) {
-			fprintf(stderr, "#### Invalid kernel_trace_tag:addr=0x%llx,tag=%d\n", record.paddr, kernel_trace_tag);
-//                	exit(-1);
-            	}
-           	 int hmtt_kt_type = ((kernel_trace_seq_entry) % TAG_ACCESS_SIZE) / TAG_ACCESS_STEP;
-            	if (hmtt_kt_type > 1) {
-                	fprintf(stderr, "#### Invalid hmtt_kt_type:addr=0x%llx,tag=%d,type=%d\n", record.paddr, kernel_trace_tag,
-                        	hmtt_kt_type);
-  //              	exit(-1);
-            	} else if (hmtt_kt_type == 1);
-		
-		if (glb_start_analysis == 0 && kernel_trace_tag == DUMP_PAGE_TABLE_TAG) {
-                	printf("find DUMP_PAGE_TABLE_TAG in hmtt trace \n");
-			glb_start_analysis = 1;
-			printf("dump page done.\n");
-    			printf("trace init done.\n");
-			return ;
-            	}
-		if(glb_start_analysis == 0)
-			return ;
-
-		switch (kernel_trace_tag) {
-			case SET_PTE_TAG:
-				if(record.rw == 0){
-					set_pte_cnt_w ++;
-					break;
-				}
-				set_pte_cnt ++;
-				get_kt_trace();
-				magic =  (*(char*)(kt_ch_tmp));
-				if(magic != set_page_table_magic){
-					while((magic != set_page_table_magic)){
-		                                if(magic == free_page_table_magic || magic == free_page_table_get_clear || magic == free_page_table_get_clear_full)
-                		                        skip_free_in_set ++;
-                                		get_kt_trace();
-		                                magic =  (*(char*)(kt_ch_tmp));
-                        		}
-				}	
-				pid = (*(int*)((kt_ch_tmp + 1)));
-				val = (*(uint64_t*)(kt_ch_tmp + 5));
-	                        ppn = val & 0xffffff;
-            	                vpn = (val >> 24) & 0xffffffffff;
-				if (ppn >= MAXPPN) {
-                    		    printf("invalid ppn in set pte\n ");
-				    exit(-1);
-				    return ;
-                    		}
-                    		ppn2pid[ppn] = pid;
-	                    	ppn2vpn[ppn] = vpn;
-                    		vpn2ppn[vpn] = ppn;				
-
-
-				break;
-			case FREE_PTE_TAG:
-				if(record.rw == 0){
-					free_pte_cnt_w ++;
-					break;
-				}
-				free_pte_cnt ++;
-				get_kt_trace();
-                                magic =  (*(char*)(kt_ch_tmp));
-				if(magic != free_page_table_magic && magic != free_page_table_get_clear && magic != free_page_table_get_clear_full){
-					break;
-				}
-				pid = (*(int*)((kt_ch_tmp + 1)));
-                                val = (*(uint64_t*)(kt_ch_tmp + 5));
-                                ppn = val & 0xffffff;
-                                vpn = (val >> 24) & 0xffffffffff;
-				if (ppn >= MAXPPN) {
-                                    printf("invalid ppn in set pte\n ");
-                                    exit(-1);
-                                    return ;
-                                }
-				ppn2pid[ppn] = 0;
-                                ppn2vpn[ppn] = 0;
-				
-
-				break;
-			case DUMP_PAGE_TABLE_TAG:
-				printf("****** stop analysis***** \n");
-                    		break;
-			case KERNEL_TRACE_END_TAG:
-				printf("find KERNEL_TRACE_END_TAG\n");
-				get_kt_trace();
-				glb_start_analysis = 0;
-	                        if (strncmp(kt_ch_tmp, "$$$$$$$$$$$$$", 13) == 0) {
-					*dev_readptr += 3;		
-					printf("kernel trace end.\n");
-                    		} else {
-                        		printf("error: kernel trace end\n");
-                    		}
-                    		break;
-                	default:
-                		some_error_trace += 1;
-	
-		}
 	}
 	else if(glb_start_analysis == 1){
-		if(total_trace % 20000000 == 0){
-	                printf("pte percent = %lf, total_trace = %llu\n", (double)(none_pte - last_none_pte) / 20000000.0, total_trace);
+		if(total_trace % 200000000 == 0){
+	                printf("pte percent = %lf, total_trace = %llu, miss_set_pte = %llu, miss_free_pte = %llu  \n", (double)(none_pte - last_none_pte) / 200000000.0, total_trace,miss_set_pte - last_miss_set_pte, miss_free_pte - last_miss_free_pte );
 			printf("delete_hmtt_trace = %lu, find_pg_hit = %lu\n",delete_hmtt_trace,find_pg_hit);
 	                last_none_pte = none_pte;
+			last_miss_set_pte = miss_set_pte;
+			last_miss_free_pte = miss_free_pte;
 	        }
 
 		total_trace ++;
@@ -985,7 +875,8 @@ void analysis_single_trace(char *trace_start){
 		if(ppn > MAXPPN)
 		{
 			printf("invalid ppn in normol hmtt trace!\n ");
-                        exit(-1);
+//                        exit(-1);
+
 			return ;
 		}
 		unsigned long long pmd_ppn =(ppn >> 8);
@@ -993,7 +884,7 @@ void analysis_single_trace(char *trace_start){
 	                none_pte += 1;
         	        record.pid = -1;
                 	record.vaddr = 0;		
-			store_to_tmp_buffer(&record.paddr, 1);
+//			store_to_tmp_buffer(&record.paddr, 1);
 			
 		}
 		else{
@@ -1332,7 +1223,7 @@ int main(int argc, char **argv)
 	 **  lhf add init pte collect
 	 */
 	dev_size = KERNEL_TRACE_SIZE << 20; //16384*4096;//ioctl(ff,PRO_IOCQ_PAGENUM) * 4096;         //get pro's buffer size
-        printf("dev_size = %dMB\n",KERNEL_TRACE_SIZE);
+        printf("dev_size = %dMB\n",KERNEL_TRACE_SIZE);   //#define KERNEL_TRACE_SIZE (10241LLU)
 	kt_ff = open(kernel_trace_path, O_RDWR);
 	printf("open %s in %d\n", kernel_trace_path, kt_ff);
         if( kt_ff < 0 ){
