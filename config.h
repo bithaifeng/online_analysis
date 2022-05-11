@@ -11,6 +11,7 @@
 #define EVICT_ON
 #include "memory_manage.h"
 #include "evict.h"
+#include <queue>
 
 
 
