@@ -40,13 +40,21 @@
 
 
 
-//#define LOCAL_PAGE_SIZE (1ULL << 18)
-#define LOCAL_PAGE_SIZE (2ULL << 18)
+#define LOCAL_PAGE_SIZE (1ULL << 17)
+//#define LOCAL_PAGE_SIZE (512)    //
+//#define LOCAL_PAGE_SIZE (2ULL << 18)
 #define USING_PAGE_SIZE (4ULL << 18)
+
+//#define LOCAL_PAGE_SIZE 256
+//#define USING_PAGE_SIZE 512
+
+
 
 #define MAX_ACCESS_TIME (10UL << 20) // 10 million
 
-#define RRIP_BITS 2
+#define RRIP_BITS 4
+#define MAXVALUE ( (1ULL << RRIP_BITS) - 1 )
+#define INSERT_VALUE ( MAXVALUE - 3)
 
 #define MAX_PPN (64ULL << 18)
 
@@ -88,5 +96,23 @@ extern unsigned long select_and_return_free_ppn();
 extern void check_and_update_page(unsigned long ppn);
 
 extern void check_vpn(unsigned long vpn);
+
+
+/* page state  */
+
+struct page_state{
+	unsigned char access_bit;
+	unsigned char active_bit;
+};
+
+extern struct page_state ppn2state[USING_PAGE_SIZE];
+extern unsigned long vpn2ppn[USING_PAGE_SIZE];
+extern unsigned long ppn2vpn[USING_PAGE_SIZE];
+
+
+
+
+
+
 
 

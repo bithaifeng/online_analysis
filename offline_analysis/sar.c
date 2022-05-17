@@ -15,7 +15,9 @@
 #include <unistd.h> /* sysconf */
 #include<algorithm>
 #include <omp.h>
-#include "rrip.h"
+
+//#include "rrip.h"
+#include "config.h"
 
 using namespace std;
 int pid=0;
@@ -26,6 +28,13 @@ static inline unsigned long long rdtsc(void)
     return ( (unsigned long long)lo)|( ((unsigned long long)hi)<<32 );  
 }  
 
+
+/********Zipf load**************/
+extern void init_zipf_index();
+#define ZIPNUM 10000000
+extern unsigned long zipf_index[ZIPNUM];
+
+/****************************/
 
 int Rand(int i){return rand()%i;}
 
@@ -39,22 +48,45 @@ int main(int args, char* argv[]){
 
     pid=getpid();
     printf("pid= %d\n",pid);
-	init_rrip_structure();
-
-	init_logicl_access();
-	int i = 0;
-	for(i = 0; i < ((1ULL << RRIP_BITS)); i++){
-		printf("maintains[%d] = %lu\n", i,maintain_number[i]);
-	}
+	/* eviction init  */
+	init_evict_state(0);
 //    printf("");
 //    return 0;
 
+    init_zipf_index();
+    unsigned long scan_id = 0; 
+//    for(i = 0 ; i < 20; i++)
+#if 1
+    for(scan_id = 0 ; scan_id < 20 ; scan_id ++){
+	printf("%lu\n", zipf_index[ scan_id] );
+    }
+   
+    printf("*******stage 1**********\n");
+    for(scan_id = 0 ; scan_id < ZIPNUM ; scan_id ++){
+	check_every_vpn( zipf_index[scan_id] );
+    }
+    print_all_analysis();
+    printf("*******stage 2**********\n");
+
+    for(scan_id = 0 ; scan_id < ZIPNUM ; scan_id ++){
+	check_every_vpn( zipf_index[scan_id] );
+    }
+    print_all_analysis();
+    return 0;
+#endif
+
+#if 0 
+    for(scan_id = 0 ; scan_id < (3ULL << 18); scan_id ++){
+	;check_every_vpn(scan_id);
+    }
+	print_all_analysis();
+#endif
     unsigned long len=4;
     unsigned int thd=1;
     double opt = 0;
     len = len* 0x8000000;
 
-    print_analysis();
+//    print_analysis();
 
     double random_rate = 50;
 
@@ -119,7 +151,7 @@ int main(int args, char* argv[]){
     printf("read base: %p:\n",arr + read_len_offset);
         
         
-    cin>>opt;
+	cin>>opt;
         unsigned long startidx = 0;
         
         unsigned long endidx  = 10000000;   
@@ -144,7 +176,7 @@ int main(int args, char* argv[]){
 
         cout<<"continue norm flush"<<endl;
 
-	print_analysis();
+//	print_analysis();
 
         for(unsigned long c1=startidx;c1<endidx;c1++){            
             if(rand_len != 0){
@@ -153,7 +185,8 @@ int main(int args, char* argv[]){
 
 //		printf("acces id = %lu\n", based_idx);
 //		cin>>opt;
-		check_vpn(based_idx);	
+//		check_vpn(based_idx);	
+		check_every_vpn( based_idx );
 
                 based = arr_idx[based_idx]*512 + read_len_offset;
                 for(unsigned long c2=0; c2<read_len_in_page; c2++)
@@ -161,7 +194,8 @@ int main(int args, char* argv[]){
             }
         }
 
-	print_analysis();
+	print_all_analysis();
+//	print_analysis();
         cin>>opt;
 
 
@@ -176,7 +210,8 @@ int main(int args, char* argv[]){
                 based_idx = based_idx%rand_len; 
                 based = arr_idx[based_idx]*512 + read_len_offset;
 
-		check_vpn(based_idx);
+//		check_vpn(based_idx);
+		check_every_vpn( based_idx );
                 
                 bt_r = rdtsc();
                 for(unsigned long c2=0; c2<read_len_in_page; c2++)
@@ -196,7 +231,9 @@ int main(int args, char* argv[]){
                                              ((unsigned long)sum)%1000, 1.0*sum_s/(c1)/2400);
             }
         }
-	print_analysis();
+//	print_analysis();
+	print_all_analysis();
+	
 
         printf("[PID: %-6d] rand access sum %6lu interval: %-10.4f us\n",
             getpid(), ((unsigned long)sum)%1000, 1.0*sum_r/(endidx)/2400);

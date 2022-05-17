@@ -1,11 +1,16 @@
-#define _GNU_SOURCE
-#include "rrip.h"
+//#define _GNU_SOURCE
+//#include "rrip.h"
+#include "config.h"
+
 
 using namespace std;
 
 /* for temply pagetable*/
 unsigned long vpn2ppn[USING_PAGE_SIZE] = {0};
 unsigned long ppn2vpn[USING_PAGE_SIZE] = {0};
+struct page_state ppn2state[USING_PAGE_SIZE] = {0};
+
+
 
 /******************/
 
@@ -86,7 +91,9 @@ void check_vpn(unsigned long vpn){
 	if( vpn2ppn[vpn] == LOCAL_PAGE_SIZE){
 		//reclaim one page and   ,insert new to it.
 		ppn = select_and_return_free_ppn();
-		insert_page(ppn, (1ULL << RRIP_BITS) - 2 );
+//		insert_page(ppn, (1ULL << RRIP_BITS) - 2 );
+//		insert_page(ppn, (1ULL << RRIP_BITS) - 3 );
+		insert_page(ppn, INSERT_VALUE );
 		ppn2vpn[ppn] = vpn;
 		vpn2ppn[vpn] = ppn;
 		miss_num ++;
@@ -110,6 +117,13 @@ void check_and_update_page(unsigned long ppn){
 
 	if(now_group_id == 0){
 		//skip
+		//update lru list
+		list_del( &ppn2page_list[ppn] );
+		maintain_number[ ppn2groupid[ppn] ] --;
+	        mem_using --;
+		insert_page(ppn, 0 );
+
+
 		return ;
 	}
 	if( now_group_id > 0 && now_group_id < (1ULL << RRIP_BITS) ){
@@ -189,8 +203,9 @@ struct page_list* get_tail_and_delete(int group_id){
 	}
 
 	return tmp;
-
 }
+
+
 
 
 
@@ -264,6 +279,7 @@ void print_analysis(){
                 printf("maintains[%d] = %ld\n", i,maintain_number[i]);
         }
 	printf("miss_num = %lu, hit_num = %lu\n", miss_num, hit_num);
+	miss_num = 0; hit_num = 0;
 	printf("mem_using = %ld\n", mem_using);
 }
 
