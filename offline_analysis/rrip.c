@@ -6,9 +6,9 @@
 using namespace std;
 
 /* for temply pagetable*/
-unsigned long vpn2ppn[USING_PAGE_SIZE] = {0};
-unsigned long ppn2vpn[USING_PAGE_SIZE] = {0};
-struct page_state ppn2state[USING_PAGE_SIZE] = {0};
+//unsigned long vpn2ppn[USING_PAGE_SIZE] = {0};
+//unsigned long ppn2vpn[USING_PAGE_SIZE] = {0};
+//struct page_state ppn2state[USING_PAGE_SIZE] = {0};
 
 
 
@@ -25,7 +25,7 @@ int ppn2groupid[MAX_PPN] = {0};
 /*for each rrip group*/
 struct page_list head[1 << RRIP_BITS], tail[1 << RRIP_BITS];
 long long maintain_number[ 1 << RRIP_BITS ] = {0};
-struct page_list ppn2page_list[ MAX_PPN ];
+//struct page_list ppn2page_list[ MAX_PPN ];
 
 
 long long mem_using = 0;
@@ -106,6 +106,8 @@ void check_vpn(unsigned long vpn){
 
 int pf2 = 0;
 
+#define lru_0
+
 void check_and_update_page(unsigned long ppn){
 	int now_group_id = check_group_id( ppn );
 	if(now_group_id == ((1ULL << RRIP_BITS)) ){
@@ -117,12 +119,13 @@ void check_and_update_page(unsigned long ppn){
 
 	if(now_group_id == 0){
 		//skip
+#ifdef lru_0
 		//update lru list
 		list_del( &ppn2page_list[ppn] );
 		maintain_number[ ppn2groupid[ppn] ] --;
 	        mem_using --;
 		insert_page(ppn, 0 );
-
+#endif
 
 		return ;
 	}

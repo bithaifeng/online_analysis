@@ -2,13 +2,13 @@
 #define HMTT_CONFIG_H
 
 
-// #define PREFETCH_ON
+ #define PREFETCH_ON
 
 // #define exit_prefetch_when_nomem
 
 
 
-#define EVICT_ON
+//#define EVICT_ON
 #include "memory_manage.h"
 #include "evict.h"
 #include <queue>
@@ -17,7 +17,7 @@
 
 // #define use_stream_evict 1
 
-#define use_kernel_fifo_alg
+//#define use_kernel_fifo_alg
 
 // #define use_userspace_alg
 

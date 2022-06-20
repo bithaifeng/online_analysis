@@ -38,12 +38,13 @@
 #include <signal.h>
 #include <errno.h>
 
+#include "evict_control.h"
 
 
-#define LOCAL_PAGE_SIZE (1ULL << 17)
+//#define LOCAL_PAGE_SIZE (1ULL << 17)
 //#define LOCAL_PAGE_SIZE (512)    //
 //#define LOCAL_PAGE_SIZE (2ULL << 18)
-#define USING_PAGE_SIZE (4ULL << 18)
+//#define USING_PAGE_SIZE (4ULL << 18)
 
 //#define LOCAL_PAGE_SIZE 256
 //#define USING_PAGE_SIZE 512
@@ -52,9 +53,9 @@
 
 #define MAX_ACCESS_TIME (10UL << 20) // 10 million
 
-#define RRIP_BITS 4
+#define RRIP_BITS 1
 #define MAXVALUE ( (1ULL << RRIP_BITS) - 1 )
-#define INSERT_VALUE ( MAXVALUE - 3)
+#define INSERT_VALUE ( MAXVALUE - 0)
 
 #define MAX_PPN (64ULL << 18)
 

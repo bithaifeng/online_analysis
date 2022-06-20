@@ -38,6 +38,7 @@
 #include "config.h"
 
 
+#include "filter_table.h"
 
 #include "lt_profile.h"
 #include "lightswapinterface.h"
@@ -972,6 +973,7 @@ void training_seek(){
 //				if(using_pid == ppn2pid[ prefetch_buffer[pb_r_ptr % PREFETCH_BUFFER_SIZE] ]  )
 				if(using_pid == pid_d  )
 				{
+					monitor_num++;
 					;
 #ifdef STORE_FILE
 //					store_to_trace_store_buff(ppn2vpn[tmp_ppn] , 0);
@@ -2051,8 +2053,9 @@ void analysis_single_trace(char *trace_start){
 	return 0;
 #endif	
 
+	filter_table( paddr, duration_all );
 
-	filter_check(paddr, duration_all);
+//	filter_check(paddr, duration_all);
 	return 0;
 //	insert_entry(paddr >> 12, duration_all);
 //	return 0; return ;

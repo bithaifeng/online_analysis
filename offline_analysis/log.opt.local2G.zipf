@@ -1,0 +1,174 @@
+pid= 25106
+21
+157
+37
+20
+6
+62
+7
+5793
+95782
+4
+556
+17
+26
+17907
+0
+0
+0
+1275
+434
+3144
+*******stage 1**********
+id = 0
+miss_num = 0, hit_num = 0, sum = 0
+id = 1000
+miss_num = 363, hit_num = 637, sum = 1000
+id = 2000
+miss_num = 313, hit_num = 687, sum = 1000
+id = 3000
+miss_num = 247, hit_num = 753, sum = 1000
+id = 4000
+miss_num = 212, hit_num = 788, sum = 1000
+id = 5000
+miss_num = 195, hit_num = 805, sum = 1000
+id = 6000
+miss_num = 221, hit_num = 779, sum = 1000
+id = 7000
+miss_num = 177, hit_num = 823, sum = 1000
+id = 8000
+miss_num = 189, hit_num = 811, sum = 1000
+id = 9000
+miss_num = 176, hit_num = 824, sum = 1000
+id = 10000
+miss_num = 206, hit_num = 794, sum = 1000
+id = 11000
+miss_num = 157, hit_num = 843, sum = 1000
+id = 12000
+miss_num = 172, hit_num = 828, sum = 1000
+id = 13000
+miss_num = 177, hit_num = 823, sum = 1000
+id = 14000
+miss_num = 170, hit_num = 830, sum = 1000
+id = 15000
+miss_num = 168, hit_num = 832, sum = 1000
+id = 16000
+miss_num = 150, hit_num = 850, sum = 1000
+id = 17000
+miss_num = 177, hit_num = 823, sum = 1000
+id = 18000
+miss_num = 175, hit_num = 825, sum = 1000
+id = 19000
+miss_num = 161, hit_num = 839, sum = 1000
+id = 20000
+miss_num = 161, hit_num = 839, sum = 1000
+id = 21000
+miss_num = 186, hit_num = 814, sum = 1000
+id = 22000
+miss_num = 166, hit_num = 834, sum = 1000
+id = 23000
+miss_num = 141, hit_num = 859, sum = 1000
+id = 24000
+miss_num = 136, hit_num = 864, sum = 1000
+id = 25000
+miss_num = 149, hit_num = 851, sum = 1000
+id = 26000
+miss_num = 141, hit_num = 859, sum = 1000
+id = 27000
+miss_num = 149, hit_num = 851, sum = 1000
+id = 28000
+miss_num = 132, hit_num = 868, sum = 1000
+id = 29000
+miss_num = 132, hit_num = 868, sum = 1000
+id = 30000
+miss_num = 155, hit_num = 845, sum = 1000
+id = 31000
+miss_num = 134, hit_num = 866, sum = 1000
+id = 32000
+miss_num = 137, hit_num = 863, sum = 1000
+id = 33000
+miss_num = 120, hit_num = 880, sum = 1000
+id = 34000
+miss_num = 132, hit_num = 868, sum = 1000
+id = 35000
+miss_num = 132, hit_num = 868, sum = 1000
+id = 36000
+miss_num = 149, hit_num = 851, sum = 1000
+id = 37000
+miss_num = 129, hit_num = 871, sum = 1000
+id = 38000
+miss_num = 106, hit_num = 894, sum = 1000
+id = 39000
+miss_num = 135, hit_num = 865, sum = 1000
+id = 40000
+miss_num = 146, hit_num = 854, sum = 1000
+id = 41000
+miss_num = 136, hit_num = 864, sum = 1000
+id = 42000
+miss_num = 128, hit_num = 872, sum = 1000
+id = 43000
+miss_num = 118, hit_num = 882, sum = 1000
+id = 44000
+miss_num = 141, hit_num = 859, sum = 1000
+id = 45000
+miss_num = 126, hit_num = 874, sum = 1000
+id = 46000
+miss_num = 136, hit_num = 864, sum = 1000
+id = 47000
+miss_num = 124, hit_num = 876, sum = 1000
+id = 48000
+miss_num = 120, hit_num = 880, sum = 1000
+id = 49000
+miss_num = 109, hit_num = 891, sum = 1000
+id = 50000
+miss_num = 117, hit_num = 883, sum = 1000
+id = 51000
+miss_num = 132, hit_num = 868, sum = 1000
+id = 52000
+miss_num = 131, hit_num = 869, sum = 1000
+id = 53000
+miss_num = 123, hit_num = 877, sum = 1000
+id = 54000
+miss_num = 112, hit_num = 888, sum = 1000
+id = 55000
+miss_num = 110, hit_num = 890, sum = 1000
+id = 56000
+miss_num = 114, hit_num = 886, sum = 1000
+id = 57000
+miss_num = 105, hit_num = 895, sum = 1000
+id = 58000
+miss_num = 116, hit_num = 884, sum = 1000
+id = 59000
+miss_num = 106, hit_num = 894, sum = 1000
+id = 60000
+miss_num = 120, hit_num = 880, sum = 1000
+id = 61000
+miss_num = 116, hit_num = 884, sum = 1000
+id = 62000
+miss_num = 127, hit_num = 873, sum = 1000
+id = 63000
+miss_num = 110, hit_num = 890, sum = 1000
+id = 64000
+miss_num = 123, hit_num = 877, sum = 1000
+id = 65000
+miss_num = 116, hit_num = 884, sum = 1000
+id = 66000
+miss_num = 122, hit_num = 878, sum = 1000
+id = 67000
+miss_num = 107, hit_num = 893, sum = 1000
+id = 68000
+miss_num = 118, hit_num = 882, sum = 1000
+id = 69000
+miss_num = 111, hit_num = 889, sum = 1000
+id = 70000
+miss_num = 111, hit_num = 889, sum = 1000
+id = 71000
+miss_num = 122, hit_num = 878, sum = 1000
+id = 72000
+miss_num = 108, hit_num = 892, sum = 1000
+id = 73000
+miss_num = 108, hit_num = 892, sum = 1000
+id = 74000
+miss_num = 117, hit_num = 883, sum = 1000
+id = 75000
+miss_num = 116, hit_num =

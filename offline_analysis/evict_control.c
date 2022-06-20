@@ -1,11 +1,14 @@
 #include "config.h"
 
 
-#define USING_RRIP
-//#define LINUX_EVICT
 
 
 void init_evict_state(int choice){
+
+#ifdef USING_OPT
+	init_opt();
+#endif
+
 
 #ifdef USING_RRIP
 	init_rrip_structure();
@@ -20,7 +23,18 @@ void init_evict_state(int choice){
 	linux_evict_init();	
 	print_analysis_linux_default();
 #endif	
+
+#ifdef USING_LIRS
+	init_lirs();
+	print_analysis_lirs();
+#endif
+
+
 }
+
+
+
+
 
 void check_every_vpn(unsigned long vpn){
 
@@ -31,6 +45,11 @@ void check_every_vpn(unsigned long vpn){
 #ifdef LINUX_EVICT
 	check_vpn_linux_default(vpn);;
 #endif
+
+#ifdef USING_LIRS
+	check_vpn_lirs(vpn);
+#endif
+
 }
 
 
@@ -44,10 +63,16 @@ void print_all_analysis(){
 	print_analysis_linux_default();	
 #endif
 
+#ifdef USING_LIRS
+	print_analysis_lirs();
+#endif
+
+
+#ifdef USING_OPT
+	print_analysis_opt();
+#endif
 
 }
-
-
 
 
 

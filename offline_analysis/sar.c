@@ -19,6 +19,10 @@
 //#include "rrip.h"
 #include "config.h"
 
+#include <vector>
+
+map<unsigned long, unsigned long> vpn2last;
+
 using namespace std;
 int pid=0;
 static inline unsigned long long rdtsc(void)  
@@ -45,6 +49,13 @@ int Rand(int i){return rand()%i;}
 
 int main(int args, char* argv[]){
     
+	unsigned long tmp = vpn2last[0];
+	printf("dis = %lu\n", tmp);
+		vector<int> v{ 1, 2, 3, 4, 5 };
+	v.insert(v.begin(), 6);
+	int k = 0;
+	for(k = 0 ;k < v.size(); k++)
+		printf("%d\n", v[k]);
 
     pid=getpid();
     printf("pid= %d\n",pid);
@@ -63,13 +74,21 @@ int main(int args, char* argv[]){
    
     printf("*******stage 1**********\n");
     for(scan_id = 0 ; scan_id < ZIPNUM ; scan_id ++){
+#ifdef USING_OPT
+	check_vpn_opt( zipf_index[scan_id], scan_id, zipf_index, ZIPNUM );
+#else
 	check_every_vpn( zipf_index[scan_id] );
+#endif
     }
     print_all_analysis();
     printf("*******stage 2**********\n");
 
     for(scan_id = 0 ; scan_id < ZIPNUM ; scan_id ++){
+#ifdef USING_OPT
+	check_vpn_opt( zipf_index[scan_id], scan_id, zipf_index, ZIPNUM );
+#else
 	check_every_vpn( zipf_index[scan_id] );
+#endif
     }
     print_all_analysis();
     return 0;

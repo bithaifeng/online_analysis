@@ -293,8 +293,11 @@ void check_vpn_linux_default( unsigned long vpn ){
 	else{
 		//update access bit
 		update_access_bit(ppn, 1);
-		
 		hit_num_linux_evict ++;
+
+
+
+
 	}
 
 }
