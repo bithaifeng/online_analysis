@@ -1,5 +1,5 @@
 
-#define ASYNC_BUFFER_LEN 64
+#define ASYNC_BUFFER_LEN 512
 
 struct async_struct{
         unsigned long ppn;
@@ -16,7 +16,7 @@ struct evict_buffer_struct{
 
 
 struct evict_task{
-	unsigned long evict_buffer_write_ptr, evict_buffer_read_ptr;
+	volatile unsigned long evict_buffer_write_ptr, evict_buffer_read_ptr;
 	int tid;
 	struct evict_buffer_struct evict_buffer[ASYNC_BUFFER_LEN];
 
@@ -48,3 +48,4 @@ extern struct evict_buffer_struct evict_buffer[ASYNC_BUFFER_LEN];
 
 
 void init_evict_thread();
+extern void print_msg_evict();

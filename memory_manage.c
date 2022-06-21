@@ -82,6 +82,32 @@ void update_lru(unsigned long ppn){
     // lru_lock.unlock();
 }
 
+int  update_lru_return(unsigned long ppn){
+    int ret = -1;
+    if(ppn >= (128ULL << 18))
+        return 3;
+
+    // page is in lru, first isolate it
+    if(page_map_array[ppn].page_list.next != NULL || page_map_array[ppn].page_list.prev != NULL){
+        if(page_map_array[ppn].page_list.next == NULL || page_map_array[ppn].page_list.prev == NULL){
+            printf("\nLT: LRU BUG!!!\n");
+        }
+
+        list_del(&page_map_array[ppn].page_list);
+	ret = 1;// means hit
+    }
+    else
+	ret = 2; // means the page is a new page
+
+    insert_to_page_list_head(&page_map_array[ppn].page_list);
+
+    return ret;
+
+    // lru_lock.unlock();
+}
+
+
+
 unsigned int scan_ptr_counter = 0;
 
 struct page_list* push_scan(){
@@ -105,8 +131,8 @@ struct page_list* reset_scan(){
 }
 
 
-#define UPDATE_INTER_TIME ( 4ULL << 24 )
-// #define UPDATE_INTER_TIME ( 2400 * 10 )
+//#define UPDATE_INTER_TIME ( 4ULL << 24 )
+ #define UPDATE_INTER_TIME ( 2400 * 10 )
 
 //for each hot virtual page or hot physical page
 void hot_page_lru_control(unsigned long ppn){
@@ -128,11 +154,40 @@ void hot_page_lru_control(unsigned long ppn){
 }
 
 
+int hot_page_lru_control_return(unsigned long ppn){
+	int ret = -1;
+	if(page_map_array[ppn].page_list.next == NULL && page_map_array[ppn].page_list.prev == NULL){
+		// new page
+		insert_to_page_list_head(&page_map_array[ppn].page_list);
+		
+		ret = 2; //
+		page_map_array[ppn].last_access_time = duration_all;
+		return ret;
+	}
+
+
+        if(duration_all -  page_map_array[ppn].last_access_time >= UPDATE_INTER_TIME)
+        {
+        	statics_datatype2(page_state_array[ppn].state);
+
+                //check page is used?
+            // if( lt_check_page_charging(ppn)){
+	        if( lt_check_page_inuse(ppn)){
+	                ret = update_lru_return(ppn);
+	        }
+                page_map_array[ppn].last_access_time = duration_all;
+	}
+	else ret = 5;
+	return ret;
+}
+
+
+
 /*****************************/
 
 
 
-unsigned long *memory_buffer_start_addr = NULL;
+volatile unsigned long *memory_buffer_start_addr = NULL;
 struct hmtt_page_state *page_state_start_addr = NULL;
 struct hmtt_page_state *page_state_array = NULL;
 struct evict_struct *evict_engine_start_addr = NULL;

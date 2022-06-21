@@ -534,6 +534,7 @@ unsigned long start_new_ppn_address = 0;
 volatile int   pb_w_ptr;
 volatile int pb_r_ptr;
 int pb_w_ptr_pid,pb_r_ptr_pid;
+
 //std::atomic< int  > pb_r_ptr;
 
 //std::atomic< int  > tb_w_ptr;
@@ -843,15 +844,15 @@ void  prefetch_monitor_seek(){
 unsigned long store_to_pb_num = 0;
 unsigned long store_to_tb_num = 0;
 
+
+
+
 void store_to_pb_entry(struct prefetch_entry new_entry){
 	store_to_pb_num ++;
 	if( pb_w_ptr - pb_r_ptr > PREFETCH_BUFFER_SIZE ){
 		for(int i = 0 ;i < 20; i ++)
 	                printf("$$$$$ prefetch buffer overflow !!!!\n");
         }
-
-
-
 }
 
 
@@ -2053,9 +2054,9 @@ void analysis_single_trace(char *trace_start){
 	return 0;
 #endif	
 
-	filter_table( paddr, duration_all );
+//	filter_table( paddr, duration_all );
 
-//	filter_check(paddr, duration_all);
+	filter_check(paddr, duration_all);
 	return 0;
 //	insert_entry(paddr >> 12, duration_all);
 //	return 0; return ;
@@ -2525,6 +2526,8 @@ int main(int argc, char **argv)
 /******************For page management**************/
 	init_user_engine();
 	init_evict_thread(); // evict thread start
+	init_async_evict(); // async evict consume_build
+
 	
 
 // #define lt_1g_page_size (1UL << 18)
@@ -2952,11 +2955,14 @@ times_u[0] = get_cycles();
 	printf("average syscall time = %.3lf \n", (double)syscall_all_time /(double)pre_counter );
 	printf("store_to_pb_num = %lu\n", store_to_pb_num);
 	printf("store_to_tb_num = %lu, hot_physical_number = %lu\n", store_to_tb_num, hot_physical_number);
+	printf("store_to_eb_num = %lu\n", store_to_eb_num);
 	printf("syscall_use = %lu\n", syscall_use);
 	printf("average late arrival time %.3lf cycles, latency_all = %lu cycles , max_latency = %lu cycles\n",  (double)latency_all / (double)ac_counter, latency_all, max_latency);
 	printf("now_prefetch_step = %d\n", now_prefetch_step);
 	printf("monitor_trace = %d , monitor pte = %d \n", monitor_num, monitor_num_pte);
-
+	print_async_msg();
+	print_msg_evict();
+	printf("**************\n\n");
 	check_ppn_list();
 
 	for(int p = 0; p < max_prefetcher_count; p ++){

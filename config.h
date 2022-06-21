@@ -11,6 +11,7 @@
 //#define EVICT_ON
 #include "memory_manage.h"
 #include "evict.h"
+#include "async_evict.h"
 #include <queue>
 
 
@@ -18,7 +19,6 @@
 // #define use_stream_evict 1
 
 //#define use_kernel_fifo_alg
-
 // #define use_userspace_alg
 
 
@@ -26,6 +26,7 @@
 #define max_prefetcher_count 1
 
 #define PREFETCH_CORE_ID 7
+#define ASYNC_EVICT_CORE_ID 17
 
 
 #define EVICT_CORE_ID 13

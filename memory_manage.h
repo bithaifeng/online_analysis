@@ -3,6 +3,7 @@
 #define MEM_MANAGE_H
 
 #define EVCIT_RET_COPY_SUCCESS 888
+extern  void list_del( struct page_list * page_list );
 
 
 struct evict_struct
@@ -41,13 +42,15 @@ extern void unmap_memory_and_state();
 extern void init_user_engine();
 
 
-extern unsigned long *memory_buffer_start_addr;
+extern volatile unsigned long *memory_buffer_start_addr;
 extern struct hmtt_page_state *page_state_start_add;
 extern struct hmtt_page_state *page_state_array;
 extern struct evict_struct *evict_engine_start_addr;
 
 unsigned long evict_page_default(unsigned int len);
 extern unsigned long evict_page(unsigned long ppn, int pid, char flags, int start_now);
+extern int hot_page_lru_control_return(unsigned long ppn);
+
 
 unsigned long  get_lru_size();
 

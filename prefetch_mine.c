@@ -134,7 +134,8 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 
             if( lt_check_page_charging(ppn) ){
 //				store_to_pb(ppn, STEP_USE);
-				store_to_tb(ppn, tt);
+//				store_to_tb(ppn, tt);
+				store_to_eb(ppn, tt);				
 				;
 			}
 		}

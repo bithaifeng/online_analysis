@@ -89,7 +89,11 @@ void evict_pthread( void *arg ){
 
 	while(1){
 		// for(i = evict_task_set[id].evict_buffer_read_ptr; i < evict_task_set[id].evict_buffer_write_ptr; i++){
-        while(ret == 0 && evict_task_set[id].evict_buffer_read_ptr < evict_task_set[id].evict_buffer_write_ptr){
+        while( evict_task_set[id].evict_buffer_read_ptr < evict_task_set[id].evict_buffer_write_ptr){
+			if(evict_task_set[id].evict_buffer_read_ptr < 15){
+				printf("write_ptr = %lu, read_ptr = %lu\n", 
+				evict_task_set[id].evict_buffer_write_ptr, evict_task_set[id].evict_buffer_read_ptr);
+			}
 
 			page_num = evict_task_set[id].evict_buffer[ (evict_task_set[id].evict_buffer_read_ptr) % ASYNC_BUFFER_LEN ].ppn;
 			pid = evict_task_set[id].evict_buffer[ (evict_task_set[id].evict_buffer_read_ptr) % ASYNC_BUFFER_LEN ].pid;
@@ -97,10 +101,13 @@ void evict_pthread( void *arg ){
 
 			evict_task_set[id].evict_buffer_read_ptr ++;
 			evict_num ++;
+			if(evict_num % 10000 == 1 || evict_num < 20)
+				printf("evict_num = %d\n", evict_num);
+			
 
-            statics_log(0);
-            ret = evict_page(page_num, pid, flags, 0);
-		}
+		        statics_log(0);
+		        ret = evict_page(page_num, pid, flags, 0);
+	}
 
         lt_mem_pressure_check();
 
@@ -136,7 +143,7 @@ unsigned long copy_ppn_to_evict_buffer(unsigned long ppn, int pid, unsigned char
 	// check first
 	if( evict_task_set[id].evict_buffer_write_ptr - evict_task_set[id].evict_buffer_read_ptr >=  ASYNC_BUFFER_LEN-1){
 		// printf("evict buffer overflows!! write_ptr = 0x%lx, read_prt = 0x%lx\n", evict_task_set[id].evict_buffer_write_ptr, evict_task_set[id].evict_buffer_read_ptr);
-        return evict_task_set[id].evict_buffer_write_ptr - evict_task_set[id].evict_buffer_read_ptr;
+        	return evict_task_set[id].evict_buffer_write_ptr - evict_task_set[id].evict_buffer_read_ptr;
 	}
 	evict_task_set[id].evict_buffer[ (evict_task_set[id].evict_buffer_write_ptr) % ASYNC_BUFFER_LEN ].ppn = ppn;
 	evict_task_set[id].evict_buffer[ (evict_task_set[id].evict_buffer_write_ptr) % ASYNC_BUFFER_LEN ].pid = pid;
@@ -180,8 +187,11 @@ unsigned long copy_ppn_to_evict_stream_buffer(unsigned long ppn, int pid, unsign
 
 
     return evict_task_set[id].evict_stream_buffer_write_ptr - evict_task_set[id].evict_stream_buffer_read_ptr;
+}
 
-
+void print_msg_evict(){
+	printf("max_evict_buffer_len = %lu, evict_task_set[0].evict_buffer_write_ptr = %lu, evict_task_set[id].evict_buffer_read_ptr = %lu \n", max_evict_buffer_len, evict_task_set[0].evict_buffer_write_ptr, evict_task_set[0].evict_buffer_read_ptr );
+	
 }
 
 
