@@ -23,6 +23,8 @@ struct evict_struct
 
 #define EVICT_ENGIN_SIZE (32 * 4 * sizeof(evict_struct))
 
+extern unsigned long lt_mem_using;
+
 
 struct hmtt_page_state
 {

@@ -132,7 +132,8 @@ struct page_list* reset_scan(){
 
 
 //#define UPDATE_INTER_TIME ( 4ULL << 24 )
- #define UPDATE_INTER_TIME ( 2400 * 10 )
+// #define UPDATE_INTER_TIME ( 2400  )
+ #define UPDATE_INTER_TIME ( 1400  )
 
 //for each hot virtual page or hot physical page
 void hot_page_lru_control(unsigned long ppn){

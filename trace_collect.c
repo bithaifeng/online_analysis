@@ -36,6 +36,7 @@
 #include "/home/lhf/receiver_driver_hopp_64g/cfg_content.h"
 //#include "evict.h"
 #include "config.h"
+#include <limits.h>
 
 
 #include "filter_table.h"
@@ -2522,6 +2523,24 @@ unsigned long adrees_base = 0;
 
 int main(int argc, char **argv)
 {
+	unsigned long t0,t1;
+
+	unsigned long value = ULONG_MAX;
+	unsigned count = 1;
+	int test_times = 1000000;
+	int re_t = test_times;
+
+	t0 = get_cycles();
+	while(test_times --){
+		value = ULONG_MAX;
+		while (value >>= 1)
+		    ++count;
+	}
+	t1 = get_cycles();
+	printf("count = %d, use cycle = %lu, average = %lu cycle\n", count, (t1 - t0), (t1 - t0) / re_t);
+
+
+
 	printf("%d\n",getpid());
 /******************For page management**************/
 	init_user_engine();

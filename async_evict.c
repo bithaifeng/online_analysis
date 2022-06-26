@@ -2,6 +2,7 @@
 #include "prefetch_mine.h"
 #include "config.h"
 #include "lt_profile.h"
+#include "rrip.h"
 
 
 #define RECLAIM_BATCH 32
@@ -36,21 +37,52 @@ void store_to_eb(unsigned long ppn, int inter_page){
 	eb_w_ptr ++;
 }
 
+
+
+
 unsigned long max_evicting_len = 0;
 unsigned long max_evictor_len = 0;
 
 
-#define MIN_SIZE 512
+//#define MIN_SIZE 512
+#define MIN_SIZE 256
 //#define MIN_SIZE 2524
 
 int mem_pressure_check_num[2] = {0};
 unsigned long reclaim_num_copy_num[30] = {0};
 
 
+unsigned long get_ppn_from_lru(){
+	unsigned long ppn = 0;
+	// get and delte lru tail, evict the pages in BATCH NUM
+	struct page_list *cur_scan = lru_tail.prev;
+	reclaim_num_copy_num[0] ++;
+	if(reclaim_num_copy_num[0] < 20)
+	        printf( " reclaim_num_copy_num[0] = %lu, ppn = %lu , page_state_array[ppn].state = %d\n ",
+                reclaim_num_copy_num[0],cur_scan->ppn,page_state_array[cur_scan->ppn].state );
+	if( cur_scan->ppn != 0 && lt_check_page_charging(cur_scan->ppn)){
+		reclaim_num_copy_num[1] ++;
+		if(reclaim_num_copy_num[1] % 5000 == 4999){
+			printf("I have reclaim %lu pages, [%lu: %lu] pages in list, %lu free pages observed from kernel\n",
+			reclaim_num_copy_num[1], page_num_in_list, get_lru_size(), memory_buffer_start_addr[2]);
+		}
+		ppn = cur_scan->ppn;
+		list_del(&page_map_array[ cur_scan->ppn ].page_list);
+		page_num_in_list --;
+	}
+	else if( cur_scan->ppn != 0 && !lt_check_page_charging(cur_scan->ppn)){
+		reclaim_num_copy_num[2] ++;
+		list_del(&page_map_array[ cur_scan->ppn ].page_list);
+		page_num_in_list --;
+	}
+	return ppn;
+}
+
 void local_mem_pressure_check(){
 	unsigned long cur_free_mem_size = memory_buffer_start_addr[2]; 
 	unsigned long all_mem_size = memory_buffer_start_addr[0];
 	int i = 0;
+	unsigned long ppn = 0;
 //	if( cur_free_mem_size < MIN_SIZE )  //may be should check last evict finish?
 	if( memory_buffer_start_addr[2] < MIN_SIZE )  //may be should check last evict finish?
 	{
@@ -69,8 +101,27 @@ void local_mem_pressure_check(){
 			 mem_pressure_check_num[0] ++;
 		}
 
+#ifndef USING_FIFO
 		// send evict command
 		// get and delte lru tail, evict the pages in BATCH NUM
+		for(i = 0 ; i < RECLAIM_BATCH; i++){
+#ifdef USING_LRU
+			ppn = get_ppn_from_lru();
+#endif
+#ifdef USING_RRIP
+			ppn = get_ppn_from_rrip(); 
+#endif
+			if(ppn == 0) continue;
+			copy_ppn_to_evict_buffer( ppn , 0, 0, 0);
+		}
+#endif
+
+#ifdef USING_FIFO
+		evict_page_default(ltarg_max_evict_batch);
+	        statics_log(1);
+#endif
+
+#if 0
 		for(i = 0 ; i < RECLAIM_BATCH; i++){
 			struct page_list *cur_scan = lru_tail.prev;
 			reclaim_num_copy_num[0] ++;
@@ -93,9 +144,9 @@ void local_mem_pressure_check(){
                                 page_num_in_list --;
 			}
 		}
+#endif
 	}
 }
-
 
 unsigned long tmp_rdtsc[4][2] = {0};
 unsigned long record_insert_ret[30] = {0};
@@ -106,7 +157,20 @@ void async_evict_seek(){
 	printf("$$$ init async_seek\n");
 	int ret = -1;
 	while(1){
+
+#ifdef USING_FIFO
 		if(eb_r_ptr < eb_w_ptr){
+			unsigned long tmp_tb_len = eb_w_ptr - eb_r_ptr;
+			if(tmp_tb_len > max_evicting_len){
+                                max_evicting_len = tmp_tb_len;
+                        }
+			eb_r_ptr  = eb_w_ptr;
+		}
+#endif
+		
+#ifndef USING_FIFO
+		if(eb_r_ptr < eb_w_ptr)
+		{
 			unsigned long tmp_tb_len = eb_w_ptr - eb_r_ptr;
 			if(tmp_tb_len > max_evicting_len){
 				max_evicting_len = tmp_tb_len;
@@ -119,13 +183,18 @@ void async_evict_seek(){
 			unsigned long tmp_ppn = evict_buffer_train[ eb_r_ptr % EVICT_BUFFER_SIZE ];
 			eb_r_ptr ++;
 			// update lru
+#ifdef USING_LRU
 			ret = hot_page_lru_control_return(tmp_ppn);
+#endif
+#ifdef USING_RRIP
+			ret = hot_page_rrip_control_return(tmp_ppn);
+#endif
 			ed = get_cycles();
 			tmp_rdtsc[0][0] += (ed - st);
 			tmp_rdtsc[0][1] ++;
 
 			if(ret == -1){
-				record_insert_ret[5] ++;
+				record_insert_ret[10] ++;
 			}
 			else if(ret == 2){
 				// its new page
@@ -143,6 +212,8 @@ void async_evict_seek(){
 			tmp_rdtsc[1][0] += (ed - st);
                         tmp_rdtsc[1][1] ++;
 		}
+#endif
+
 		st = get_cycles();
 		local_mem_pressure_check();
 		ed = get_cycles(); 
