@@ -44,8 +44,8 @@ unsigned long max_evicting_len = 0;
 unsigned long max_evictor_len = 0;
 
 
-//#define MIN_SIZE 512
-#define MIN_SIZE 256
+#define MIN_SIZE 512
+//#define MIN_SIZE 2500
 //#define MIN_SIZE 2524
 
 int mem_pressure_check_num[2] = {0};

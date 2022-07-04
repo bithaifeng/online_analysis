@@ -98,24 +98,28 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 	int ret = -1;
 	unsigned long ppn = p_addr >> 12;
 //	if(ppn2train_buffer.count(ppn) == 0){// also can use bloom filter
-//	new_ppn[ppn].num ++;
+	new_ppn[ppn].num ++;
 
 //	if( (new_ppn[ppn].num % 33 ) == 32){  //equals new_ppn[ppn].num >= 8
 	if( (new_ppn[ppn].num  ) ==  MAX_HOT_NUM){  //equals new_ppn[ppn].num >= 8
 //	if( (new_ppn[ppn].num % 2 ) == 1){  //equals new_ppn[ppn].num >= 8
 		new_ppn[ppn].num = 0;
 //		ppn2train_buffer[ppn] = 1;
+#ifndef USETIMER
+		store_to_tb(ppn, tt);
+#endif
 #ifdef USETIMER
-		if(duration_all - new_ppn[ppn].timer >= (1ULL << 10)){ //2GHZ ~ 1 seconed
-//		if(duration_all - new_ppn[ppn].timer >= (1ULL << 21)){ //2GHZ ~ 1 seconed
+		if(duration_all - new_ppn[ppn].timer >= (1ULL << 20)){ //2GHZ ~ 1 seconed
+//		if(duration_all - new_ppn[ppn].timer >= (1ULL << 10)){ //2GHZ ~ 1 seconed // fot evict update
+//		if(duration_all - new_ppn[ppn].timer >= (1ULL << 31)){ //2GHZ ~ 1 seconed
 		// if(duration_all - new_ppn[ppn].timer >= ( 5000 )){ //2GHZ ~ 1 seconed
 //		if(duration_all - new_ppn[ppn].timer >= (1ULL << 27)){ //2GHZ ~ 1 seconed
 			new_ppn[ppn].timer = duration_all;
-			unsigned long value_d = ppn2rpt[ ppn ];
-	                unsigned long vpn_d = 0;
-	                int pid_d = 0;
-	                vpn_d = ( value_d  >> 16) & 0xffffffffff;
-	                pid_d = value_d & 0xffff;
+//			unsigned long value_d = ppn2rpt[ ppn ];
+//	                unsigned long vpn_d = 0;
+//	                int pid_d = 0;
+//	                vpn_d = ( value_d  >> 16) & 0xffffffffff;
+//	                pid_d = value_d & 0xffff;
             
             // if(pid_d == 0 || pid_d == now_pid)
             //     return 0;
@@ -134,8 +138,8 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 
             if( lt_check_page_charging(ppn) ){
 //				store_to_pb(ppn, STEP_USE);
-//				store_to_tb(ppn, tt);
-				store_to_eb(ppn, tt);				
+				store_to_tb(ppn, tt);
+//				store_to_eb(ppn, tt);				
 				;
 			}
 		}
@@ -144,6 +148,9 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 		}
 #endif
 	}
+//	else if( (new_ppn[ppn].num  ) >  MAX_HOT_NUM ){
+//		new_ppn[ppn].num --;
+//	}
 /*
 	}
 	else{
@@ -196,7 +203,7 @@ int INTER = 256;
 //int INTER = 99999999999;
 
 int caculate_stride(int inx){
-	return 1;
+//	return 1;
 	int tmp_strid[8] = {0};
 	
 	map<unsigned long, int > stride2num;
@@ -211,23 +218,64 @@ int caculate_stride(int inx){
 			real_stride = tmp_strid[i];
 	}
 	return real_stride;
-	
-
-
 	return 0;
 }
 
+int all_stride[1024] = {0};
+int all_stride_sum[1024] = {0};
 
-void readAhead( unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid )
-{
-//	store_to_pb();
 
-	
+int get_stride(int inx){
+	//if stride < 0, transfer the stride to stride_origin + 512;
+	// -256 < stride < 256
+	int i =0;
+	int stride_arr[512] = {0};
+	int tmp_stride = 0;
+	int max_num = 0;
+	int max_num_stride = 0;
+	for(i = 0 ; i < LONGSTRIDE_STRIDEN - 1; i++){
+		tmp_stride = table_lsd[inx].stride_array[ i ];
+		if(tmp_stride < 0)
+			tmp_stride += (768);
+		stride_arr[tmp_stride] ++;
+		if(max_num < stride_arr[tmp_stride]){
+			max_num = stride_arr[tmp_stride];
+			max_num_stride = tmp_stride;
+		}
+	}
+	all_stride[max_num_stride] ++;
+	if(max_num_stride > 256)
+		max_num_stride -= 768;
+	return max_num_stride;
+}
 
-//        store_to_pb(ppn, now_prefetch_step * stride); // useful
+int stride_sum = 0;
+
+int get_stride_fast(int inx, int new_stride){
+	int ret = 0;
+	int last_stride = table_lsd[inx].stride_array[ LONGSTRIDE_STRIDEN - 2 ];
+	int i = 0;
+	for(i = LONGSTRIDE_STRIDEN - 3 ; i >= 0; i --){
+		if( table_lsd[inx].stride_array[i] == last_stride && table_lsd[inx].stride_array[i + 1] == new_stride )
+		{
+			//find stride
+			ret = table_lsd[inx].stride_array[i + 2];
+			//find stride_sum
+			stride_sum = table_lsd[inx].stride_array[i] + table_lsd[inx].stride_array[i + 1];
+			break;
+		}
+	}
+	all_stride[ret] ++;
+	all_stride_sum[ stride_sum ] ++;
+	return ret;
 
 
 }
+
+
+
+
+
 
 
 //#define PRINT_LSD_TIME
@@ -347,7 +395,9 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 			// prefetch 
 			int stride = (int)(table_lsd[inx].vpn[table_lsd[inx].size - 1] - table_lsd[inx].vpn[ 0 ]) / 7 ; 
 //			stride = caculate_stride(inx);
-			stride = 1;
+//			stride = get_stride(inx);
+			stride = get_stride_fast(inx, vpn - table_lsd[inx].vpn[table_lsd[inx].size - 1] );
+//			stride = 1;
 //			if(stride >= 100 || stride <= -100)
 //				stride = 0;
 
@@ -520,7 +570,8 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 			}
 			print_t ++;
 #ifdef PREFETCH_ON
-				store_to_pb(ppn, now_prefetch_step * stride); // useful
+				// stride test
+				store_to_pb(ppn, now_prefetch_step * stride_sum + stride); // useful
 #endif
 
 #ifdef EVICT_ON
@@ -568,6 +619,11 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 #ifdef USE_TIMER
 				table_lsd[inx].timer[i] = table_lsd[inx].timer[i + 1];
 #endif
+
+#ifdef USE_STRIDE
+				table_lsd[inx].stride_array[i] = table_lsd[inx].stride_array[i + 1];
+#endif
+
             		}
 		        table_lsd[inx].size--;
 #ifdef PRINT_LSD_TIME
@@ -585,6 +641,17 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 		table_lsd[inx].vpn[ table_lsd[inx].size ] = vpn;
 //		table_lsd[inx].vpn2value[vpn] = 1;
 
+#ifdef USE_STRIDE
+		if( table_lsd[inx].size > 0 ){
+			int tmp_stride = table_lsd[inx].vpn[ table_lsd[inx].size ] - table_lsd[inx].vpn[ table_lsd[inx].size - 1];
+			if(tmp_stride <= 256 && tmp_stride > -256){
+				;
+			}
+			else tmp_stride = 0;	
+			table_lsd[inx].stride_array[ table_lsd[inx].size - 1 ] = tmp_stride;
+		}
+#endif
+
 #ifdef USE_TIMER
 		table_lsd[inx].timer[ table_lsd[inx].size ] = now_time;
 #endif
@@ -598,7 +665,6 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
         lsd_time[2] = get_cycles();
         lsd_sum_time[2] += ( lsd_time[2] - lsd_time[1] );
         lsd_use_count[2] ++;
-
 #endif
 
 
@@ -764,6 +830,24 @@ int insert_entry(unsigned long ppn, unsigned long time){
                 }
         }
         return 0;
+}
+
+
+void print_stride(){
+	int i = 0;;
+	printf("*********  stirde  ***********\n");
+	for(i = 0; i < 1024; i ++){
+		if(all_stride[i] != 0){
+			printf("stride = %d, num = %d\n", i , all_stride[i]);
+		}
+	}
+	for(i = 0; i < 1024; i ++){
+		if(all_stride_sum[i] != 0){
+			printf("stride_sum = %d, num = %d\n", i , all_stride_sum[i]);
+		}
+	}
+	printf("\n\n");
+
 }
 
 

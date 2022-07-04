@@ -277,8 +277,8 @@ extern volatile unsigned long  tb_w_ptr, tb_r_ptr;
 #define STEP_USE 500
 
 extern void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid);
-//#define LONGSTRIDE_STRIDEN 8
-#define LONGSTRIDE_STRIDEN 5
+#define LONGSTRIDE_STRIDEN 8
+//#define LONGSTRIDE_STRIDEN 5
 #define STRIDEN LONGSTRIDE_STRIDEN
 //#define LSDSTREAM_SIZE 64
 #define LSDSTREAM_SIZE 32
@@ -287,6 +287,7 @@ extern void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long
 //#define LSDUSE_PPN
 
 #define USE_TIMER
+#define USE_STRIDE
 
 
 struct LSD_vpn{
@@ -302,6 +303,11 @@ struct LSD_vpn{
 #ifdef USE_TIMER
 	unsigned long timer[LONGSTRIDE_STRIDEN];
 #endif
+	
+#ifdef USE_STRIDE
+	int stride_array[ LONGSTRIDE_STRIDEN ];
+#endif
+
 //	unsigned long accessn[LONGSTRIDE_STRIDEN];
 //	int access_times;
 
@@ -346,3 +352,4 @@ extern unsigned long max_kt_buffer_offst;
 
 extern unsigned long hot_physical_number;
 
+extern void print_stride();

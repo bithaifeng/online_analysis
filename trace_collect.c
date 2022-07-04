@@ -1983,6 +1983,11 @@ void analysis_single_trace(char *trace_start){
 	}
 
 	paddr   = (unsigned long)(paddr << 6);
+	if (paddr >= (2ULL << 30)) {
+	        paddr += (2ULL << 30);
+        }
+	if(paddr >= 0x800000000)
+		return 0;
 /*
 	seq_no = (unsigned int) ((tmp >> 40) & 0xffU);
 	timer  = (unsigned long long)((tmp >> 32) & 0xffULL);
@@ -1999,9 +2004,6 @@ void analysis_single_trace(char *trace_start){
 	}
 	duration_all += timer;
 //	record.tm = duration_all;
-	if (paddr >= (2ULL << 30)) {
-	        paddr += (2ULL << 30);
-        }
 	if(r_w == 0){ 
 		printf("addr = ox%lx, r_w = %d\n", paddr, r_w);
 		return ;
@@ -2030,7 +2032,7 @@ void analysis_single_trace(char *trace_start){
 //		store_to_tb(ppn, duration_all );
 //	}
 
-	new_ppn[ ppn ].num ++;
+//	new_ppn[ ppn ].num ++;
 //	store_to_trace_store_buff(ppn, 3);
 //	return 0;
 
@@ -2062,6 +2064,7 @@ void analysis_single_trace(char *trace_start){
 //	insert_entry(paddr >> 12, duration_all);
 //	return 0; return ;
 
+/*
 	if( (new_ppn[ppn].num ) % 33 == 32){
 //	if( (new_ppn[ppn].num ) % 9 == 8){
 		if(duration_all - new_ppn[ppn].timer >= (1ULL << 21)){
@@ -2072,10 +2075,11 @@ void analysis_single_trace(char *trace_start){
 		new_ppn[ppn].num = 0;
 	}
 	return ;
-
+*/
 
 //	if( (new_ppn[ppn].num ) % 3 == 2){
 //	if( (new_ppn[ppn].num ) % 9 == 8){
+#if 0
 	if( (new_ppn[ppn].num ) % 32 == 31){
 #ifdef USETIMER
 		if(duration_all - new_ppn[ppn].timer >= (1ULL << 22)){
@@ -2088,7 +2092,7 @@ void analysis_single_trace(char *trace_start){
 		new_ppn[ppn].num = 0;
 	}
 	return ;
-
+#endif
 #if 0 
 	if (is_kernel_tag_trace(paddr) ){
 		//This is a hmtt kernel tag trace, we should read kernel trace buffer now
@@ -2353,7 +2357,8 @@ void *store_to_disk()
 	//maintain the reading_addr
 	while(writing_addr < 0x8000000000000000)
 	{
-		if(has_reading_size > 10240000){
+//		if(has_reading_size > 10240000){
+		if(has_reading_size > 1024000000){
 			gettimeofday(&tvafter_reading,&tz);
 			writing_a = *ptr_writing_addr;
 			writing_s = (writing_a - last_writing_a + DMA_BUF_SIZE) % DMA_BUF_SIZE;
@@ -3018,6 +3023,7 @@ times_u[0] = get_cycles();
 	}
 
 	printf("max_kt_buffer_offst = %lu\n", max_kt_buffer_offst);
+	print_stride();
 
     end_ltls_inter();
 

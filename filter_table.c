@@ -15,6 +15,7 @@ unsigned int filter_table_array[ TABLESIZE ] = {0} ;
 
 #define ACCESS_NUM 8
 
+// for small cache 2-ways N sets
 void filter_table( unsigned long p_addr, unsigned long tt ){
 	int ret = -1;
         unsigned long ppn = p_addr >> 12;
@@ -35,11 +36,11 @@ void filter_table( unsigned long p_addr, unsigned long tt ){
 			if(tmp_num >= ACCESS_NUM){
 				//extract
 
+#if 0
 				if(duration_all - new_ppn[ppn].timer >= (1ULL << 10))
 					store_to_tb(ppn, tt);
 				new_ppn[ppn].timer = duration_all;
-
-
+#endif
 			}
 			else{
 				filter_table_array[set_id * WAY_NUM + i] ++;
@@ -54,4 +55,15 @@ void filter_table( unsigned long p_addr, unsigned long tt ){
 	filter_table_array[set_id * WAY_NUM + evict_id] = (ppn << 8) | (0x81);
 	filter_table_array[set_id * WAY_NUM + !evict_id ] = ( filter_table_array[set_id * WAY_NUM + !evict_id] & 0xFFFFFF7F );
 }
+
+void multi_filter_table( unsigned long p_addr, unsigned long tt ){
+	int ret = -1;
+        unsigned long ppn = p_addr >> 12;
+	unsigned long cache_line_offset = (p_addr & 0xfff) >> 6;
+	
+
+
+}
+
+
 

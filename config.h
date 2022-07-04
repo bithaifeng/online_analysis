@@ -9,7 +9,7 @@
 
 
 //#define EVICT_ON
-#define USING_LRU
+//#define USING_LRU
 //#define USING_RRIP
 //#define USING_FIFO
 
@@ -31,8 +31,8 @@
 
 #define max_prefetcher_count 1
 
-//#define PREFETCH_CORE_ID 7
-#define PREFETCH_CORE_ID 17
+#define PREFETCH_CORE_ID 7
+//#define PREFETCH_CORE_ID 17
 #define ASYNC_EVICT_CORE_ID 18
 
 
