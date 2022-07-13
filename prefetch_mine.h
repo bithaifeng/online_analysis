@@ -278,6 +278,8 @@ extern volatile unsigned long  tb_w_ptr, tb_r_ptr;
 
 extern void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid);
 #define LONGSTRIDE_STRIDEN 8
+//#define LONGSTRIDE_STRIDEN 24
+#define Stride_Array_len (LONGSTRIDE_STRIDEN - 1)
 //#define LONGSTRIDE_STRIDEN 5
 #define STRIDEN LONGSTRIDE_STRIDEN
 //#define LSDSTREAM_SIZE 64

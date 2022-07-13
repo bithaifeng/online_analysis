@@ -428,10 +428,12 @@ static inline void end_ltls_run(void){
 
 // must init shared mem before call
 int init_ltls_inter(void){
+#ifndef USING_FASTSWAP
     init_buff = memory_buffer_start_addr;
     page_state = (struct hmtt_page_state *)page_state_array;
     arg_state = (struct ltarg_page *)evict_engine_start_addr;
-    
+#endif    
+
     init_ltls_run();
 
     // init_ltls_accessstatics();

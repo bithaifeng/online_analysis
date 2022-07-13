@@ -18,9 +18,14 @@
 #include "memory_manage.h"
 #include "evict.h"
 #include "async_evict.h"
+#include "store_file.h"
+
 #include <queue>
 
 
+
+#define STORE_FILE
+#define USING_FASTSWAP
 
 // #define use_stream_evict 1
 
@@ -29,9 +34,11 @@
 
 
 
-#define max_prefetcher_count 1
+#define max_prefetcher_count 3
 
+#define PREFETCH_SEEK_CORE 16
 #define PREFETCH_CORE_ID 7
+
 //#define PREFETCH_CORE_ID 17
 #define ASYNC_EVICT_CORE_ID 18
 

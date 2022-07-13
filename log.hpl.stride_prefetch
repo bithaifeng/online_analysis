@@ -1,0 +1,971 @@
+in filter
+ get data in pagestate type [unused]:        0,  [free]:        0,  [using]:        0, [unstable]:        0, [err]:        0
+
+in train
+ get data in pagestate type [unused]:        0,  [free]:        0,  [using]:        0, [unstable]:        0, [err]:        0
+force reclaim:        0, activate reclaim:        0
+monitor_trace_num = 0
+send_monitor_trace_num = 0
+pte percent = 0.000000, total_trace = 0, miss_set_pte = 0, miss_free_pte = 0  
+none-pte with delay hit = -nan
+set_pte_cnt = 0 , set_pte_cnt_w = 0, free_pte_cnt = 0, free_pte_cnt_w = 0, some_error_trace = 0
+average len = 1024, all_has_read = 275592381090, times_use = 269078788
+now pid = 5888
+LT: send 2242462, ac 2213413, ratio 0.987 
+average syscall time = 11007.351 
+tore_to_pb_num = 26862880
+store_to_tb_num = 28512448, hot_physical_number = 71212983
+store_to_eb_num = 0
+syscall_use = 26847058
+average late arrival time 10943351401.813 cycles, latency_all = 24222156256341227 cycles , max_latency = 227101394843 cycles
+now_prefetch_step = 300
+monitor_trace = 0 , monitor pte = 0 
+id = 0, no use
+id = 1, average consume = 24.44 cycle
+max_evicting_len = 0, w_ptr = 0, r_ptr = 0, max_evictor_len = 0
+id = 0, mem_pressure_check_num = -1966954635
+id = 1, mem_pressure_check_num = 0
+reclaim_num_copy_num[0] = 0
+reclaim_num_copy_num[1] = 0
+reclaim_num_copy_num[2] = 0
+max_evict_buffer_len = 0, evict_task_set[0].evict_buffer_write_ptr = 0, evict_task_set[id].evict_buffer_read_ptr = 0 
+**************
+
+in_Page_list = 0, not_found_in_list = 128000
+  average build cycle = -nan, building times = 0
+delete num = 14623, id = 0
+max_training_len = 346 , max_read_len = 449536
+{}
+max_kt_buffer_offst = 0
+*********  stirde  ***********
+stride = 0, num = 24826994
+stride = 1, num = 359257
+stride = 2, num = 185470
+stride = 3, num = 47327
+stride = 4, num = 22167
+stride = 5, num = 13048
+stride = 6, num = 9048
+stride = 7, num = 9135
+stride = 8, num = 8248
+stride = 9, num = 8587
+stride = 10, num = 9720
+stride = 11, num = 9956
+stride = 12, num = 9720
+stride = 13, num = 10017
+stride = 14, num = 9168
+stride = 15, num = 36891
+stride = 16, num = 14262
+stride = 17, num = 26261
+stride = 18, num = 32655
+stride = 19, num = 34327
+stride = 20, num = 23262
+stride = 21, num = 193579
+stride = 22, num = 181832
+stride = 23, num = 23711
+stride = 24, num = 9501
+stride = 25, num = 5478
+stride = 26, num = 2927
+stride = 27, num = 2171
+stride = 28, num = 1202
+stride = 29, num = 1428
+stride = 30, num = 2336
+stride = 31, num = 693
+stride = 32, num = 482
+stride = 33, num = 528
+stride = 34, num = 389
+stride = 35, num = 465
+stride = 36, num = 442
+stride = 37, num = 580
+stride = 38, num = 517
+stride = 39, num = 605
+stride = 40, num = 491
+stride = 41, num = 956
+stride = 42, num = 7779
+stride = 43, num = 4299
+stride = 44, num = 2097
+stride = 45, num = 1246
+stride = 46, num = 1002
+stride = 47, num = 819
+stride = 48, num = 552
+stride = 49, num = 381
+stride = 50, num = 276
+stride = 51, num = 263
+stride = 52, num = 274
+stride = 53, num = 208
+stride = 54, num = 172
+stride = 55, num = 178
+stride = 56, num = 196
+stride = 57, num = 139
+stride = 58, num = 109
+stride = 59, num = 91
+stride = 60, num = 97
+stride = 61, num = 79
+stride = 62, num = 106
+stride = 63, num = 2065
+stride = 64, num = 1376
+stride = 65, num = 46
+stride = 66, num = 64
+stride = 67, num = 35
+stride = 68, num = 23
+stride = 69, num = 36
+stride = 70, num = 24
+stride = 71, num = 20
+stride = 72, num = 17
+stride = 73, num = 16
+stride = 74, num = 18
+stride = 75, num = 46
+stride = 76, num = 19
+stride = 77, num = 27
+stride = 78, num = 22
+stride = 79, num = 23
+stride = 80, num = 24
+stride = 81, num = 20
+stride = 82, num = 26
+stride = 83, num = 17
+stride = 84, num = 678
+stride = 85, num = 891
+stride = 86, num = 21
+stride = 87, num = 14
+stride = 88, num = 5
+stride = 89, num = 8
+stride = 90, num = 10
+stride = 91, num = 13
+stride = 92, num = 21
+stride = 93, num = 23
+stride = 94, num = 12
+stride = 95, num = 9
+stride = 96, num = 7
+stride = 97, num = 12
+stride = 98, num = 7
+stride = 99, num = 12
+stride = 100, num = 18
+stride = 101, num = 16
+stride = 102, num = 7
+stride = 103, num = 5
+stride = 104, num = 8
+stride = 105, num = 241
+stride = 106, num = 438
+stride = 107, num = 2
+stride = 108, num = 8
+stride = 109, num = 2
+stride = 110, num = 3
+stride = 111, num = 1
+stride = 112, num = 6
+stride = 113, num = 7
+stride = 114, num = 5
+stride = 115, num = 3
+stride = 116, num = 2
+stride = 117, num = 3
+stride = 118, num = 13
+stride = 119, num = 3
+stride = 120, num = 3
+stride = 121, num = 1
+stride = 123, num = 6
+stride = 124, num = 2
+stride = 125, num = 8
+stride = 126, num = 86
+stride = 127, num = 279
+stride = 128, num = 3
+stride = 129, num = 6
+stride = 130, num = 5
+stride = 131, num = 4
+stride = 132, num = 5
+stride = 133, num = 8
+stride = 134, num = 4
+stride = 135, num = 2
+stride = 136, num = 5
+stride = 137, num = 3
+stride = 138, num = 1
+stride = 139, num = 1
+stride = 140, num = 3
+stride = 141, num = 2
+stride = 142, num = 4
+stride = 143, num = 3
+stride = 145, num = 6
+stride = 146, num = 4
+stride = 147, num = 23
+stride = 148, num = 142
+stride = 149, num = 3
+stride = 150, num = 3
+stride = 152, num = 2
+stride = 154, num = 3
+stride = 155, num = 2
+stride = 156, num = 2
+stride = 157, num = 2
+stride = 158, num = 2
+stride = 159, num = 4
+stride = 160, num = 2
+stride = 161, num = 1
+stride = 162, num = 2
+stride = 163, num = 4
+stride = 164, num = 3
+stride = 165, num = 1
+stride = 166, num = 2
+stride = 167, num = 2
+stride = 168, num = 13
+stride = 169, num = 65
+stride = 170, num = 1
+stride = 171, num = 1
+stride = 172, num = 2
+stride = 173, num = 4
+stride = 174, num = 2
+stride = 175, num = 3
+stride = 176, num = 1
+stride = 177, num = 2
+stride = 178, num = 1
+stride = 179, num = 1
+stride = 180, num = 1
+stride = 181, num = 3
+stride = 182, num = 3
+stride = 183, num = 4
+stride = 184, num = 3
+stride = 185, num = 4
+stride = 187, num = 2
+stride = 188, num = 6
+stride = 189, num = 3
+stride = 190, num = 37
+stride = 191, num = 3
+stride = 192, num = 2
+stride = 193, num = 2
+stride = 194, num = 3
+stride = 195, num = 1
+stride = 197, num = 2
+stride = 199, num = 5
+stride = 200, num = 2
+stride = 201, num = 2
+stride = 202, num = 2
+stride = 203, num = 4
+stride = 204, num = 1
+stride = 205, num = 3
+stride = 206, num = 3
+stride = 207, num = 3
+stride = 209, num = 3
+stride = 210, num = 10
+stride = 211, num = 21
+stride = 212, num = 2
+stride = 213, num = 4
+stride = 214, num = 1
+stride = 215, num = 4
+stride = 216, num = 8
+stride = 217, num = 1
+stride = 218, num = 4
+stride = 219, num = 1
+stride = 220, num = 3
+stride = 221, num = 2
+stride = 222, num = 5
+stride = 223, num = 1
+stride = 225, num = 1
+stride = 226, num = 1
+stride = 227, num = 5
+stride = 228, num = 1
+stride = 229, num = 2
+stride = 230, num = 6
+stride = 231, num = 6
+stride = 232, num = 22
+stride = 233, num = 8
+stride = 234, num = 2
+stride = 236, num = 1
+stride = 237, num = 2
+stride = 238, num = 2
+stride = 239, num = 1
+stride = 240, num = 4
+stride = 241, num = 2
+stride = 242, num = 1
+stride = 243, num = 1
+stride = 244, num = 1
+stride = 245, num = 1
+stride = 246, num = 4
+stride = 247, num = 3
+stride = 248, num = 1
+stride = 249, num = 4
+stride = 251, num = 4
+stride = 252, num = 2
+stride = 253, num = 12
+stride = 254, num = 17
+stride = 255, num = 2
+stride_sum = 1, num = 12636329
+stride_sum = 2, num = 1545983
+stride_sum = 3, num = 1771678
+stride_sum = 4, num = 1404021
+stride_sum = 5, num = 974994
+stride_sum = 6, num = 682224
+stride_sum = 7, num = 529721
+stride_sum = 8, num = 346568
+stride_sum = 9, num = 257658
+stride_sum = 10, num = 179686
+stride_sum = 11, num = 149842
+stride_sum = 12, num = 116330
+stride_sum = 13, num = 96248
+stride_sum = 14, num = 75590
+stride_sum = 15, num = 91616
+stride_sum = 16, num = 62164
+stride_sum = 17, num = 77680
+stride_sum = 18, num = 59060
+stride_sum = 19, num = 62531
+stride_sum = 20, num = 81500
+stride_sum = 21, num = 414876
+stride_sum = 22, num = 195542
+stride_sum = 23, num = 171002
+stride_sum = 24, num = 212366
+stride_sum = 25, num = 228636
+stride_sum = 26, num = 232746
+stride_sum = 27, num = 230654
+stride_sum = 28, num = 209212
+stride_sum = 29, num = 192903
+stride_sum = 30, num = 181616
+stride_sum = 31, num = 133708
+stride_sum = 32, num = 130024
+stride_sum = 33, num = 135145
+stride_sum = 34, num = 112372
+stride_sum = 35, num = 88376
+stride_sum = 36, num = 85739
+stride_sum = 37, num = 83765
+stride_sum = 38, num = 70386
+stride_sum = 39, num = 59279
+stride_sum = 40, num = 54559
+stride_sum = 41, num = 74098
+stride_sum = 42, num = 162362
+stride_sum = 43, num = 62743
+stride_sum = 44, num = 89615
+stride_sum = 45, num = 28899
+stride_sum = 46, num = 24882
+stride_sum = 47, num = 24932
+stride_sum = 48, num = 20344
+stride_sum = 49, num = 21761
+stride_sum = 50, num = 36790
+stride_sum = 51, num = 19145
+stride_sum = 52, num = 12868
+stride_sum = 53, num = 13152
+stride_sum = 54, num = 13250
+stride_sum = 55, num = 11293
+stride_sum = 56, num = 10517
+stride_sum = 57, num = 9885
+stride_sum = 58, num = 7934
+stride_sum = 59, num = 9919
+stride_sum = 60, num = 9451
+stride_sum = 61, num = 13765
+stride_sum = 62, num = 20944
+stride_sum = 63, num = 50175
+stride_sum = 64, num = 14674
+stride_sum = 65, num = 27568
+stride_sum = 66, num = 7841
+stride_sum = 67, num = 7264
+stride_sum = 68, num = 5000
+stride_sum = 69, num = 5390
+stride_sum = 70, num = 2663
+stride_sum = 71, num = 5694
+stride_sum = 72, num = 4659
+stride_sum = 73, num = 6338
+stride_sum = 74, num = 4664
+stride_sum = 75, num = 2866
+stride_sum = 76, num = 4517
+stride_sum = 77, num = 4832
+stride_sum = 78, num = 5165
+stride_sum = 79, num = 3620
+stride_sum = 80, num = 18145
+stride_sum = 81, num = 5065
+stride_sum = 82, num = 5665
+stride_sum = 83, num = 9727
+stride_sum = 84, num = 35173
+stride_sum = 85, num = 16546
+stride_sum = 86, num = 3699
+stride_sum = 87, num = 2104
+stride_sum = 88, num = 2788
+stride_sum = 89, num = 2397
+stride_sum = 90, num = 1534
+stride_sum = 91, num = 1543
+stride_sum = 92, num = 1833
+stride_sum = 93, num = 1497
+stride_sum = 94, num = 1062
+stride_sum = 95, num = 869
+stride_sum = 96, num = 755
+stride_sum = 97, num = 733
+stride_sum = 98, num = 1175
+stride_sum = 99, num = 773
+stride_sum = 100, num = 1135
+stride_sum = 101, num = 1109
+stride_sum = 102, num = 1141
+stride_sum = 103, num = 3015
+stride_sum = 104, num = 2526
+stride_sum = 105, num = 24563
+stride_sum = 106, num = 15682
+stride_sum = 107, num = 1027
+stride_sum = 108, num = 459
+stride_sum = 109, num = 605
+stride_sum = 110, num = 18
+stride_sum = 111, num = 901
+stride_sum = 112, num = 887
+stride_sum = 113, num = 4163
+stride_sum = 114, num = 571
+stride_sum = 115, num = 919
+stride_sum = 116, num = 6911
+stride_sum = 117, num = 1449
+stride_sum = 118, num = 691
+stride_sum = 119, num = 1418
+stride_sum = 120, num = 496
+stride_sum = 121, num = 687
+stride_sum = 122, num = 660
+stride_sum = 123, num = 551
+stride_sum = 124, num = 197
+stride_sum = 125, num = 1629
+stride_sum = 126, num = 18359
+stride_sum = 127, num = 17978
+stride_sum = 128, num = 1064
+stride_sum = 129, num = 1363
+stride_sum = 130, num = 402
+stride_sum = 131, num = 700
+stride_sum = 132, num = 204
+stride_sum = 133, num = 112
+stride_sum = 134, num = 281
+stride_sum = 135, num = 130
+stride_sum = 136, num = 28633
+stride_sum = 137, num = 79
+stride_sum = 138, num = 466
+stride_sum = 139, num = 148
+stride_sum = 140, num = 262
+stride_sum = 141, num = 259
+stride_sum = 142, num = 53
+stride_sum = 143, num = 335
+stride_sum = 144, num = 495
+stride_sum = 145, num = 147
+stride_sum = 146, num = 485
+stride_sum = 147, num = 4934
+stride_sum = 148, num = 22682
+stride_sum = 149, num = 348
+stride_sum = 150, num = 264
+stride_sum = 151, num = 15
+stride_sum = 152, num = 84
+stride_sum = 153, num = 190
+stride_sum = 154, num = 39
+stride_sum = 155, num = 4211
+stride_sum = 156, num = 49
+stride_sum = 159, num = 49
+stride_sum = 160, num = 264
+stride_sum = 161, num = 67
+stride_sum = 162, num = 8
+stride_sum = 163, num = 106
+stride_sum = 164, num = 6
+stride_sum = 165, num = 161
+stride_sum = 166, num = 360
+stride_sum = 167, num = 97
+stride_sum = 168, num = 956
+stride_sum = 169, num = 21360
+stride_sum = 170, num = 1513
+stride_sum = 171, num = 55
+stride_sum = 172, num = 52
+stride_sum = 174, num = 272
+stride_sum = 176, num = 9
+stride_sum = 177, num = 30
+stride_sum = 178, num = 6
+stride_sum = 182, num = 7
+stride_sum = 183, num = 67
+stride_sum = 184, num = 3
+stride_sum = 185, num = 42
+stride_sum = 186, num = 113
+stride_sum = 187, num = 54
+stride_sum = 188, num = 6
+stride_sum = 189, num = 406
+stride_sum = 190, num = 25879
+stride_sum = 191, num = 29
+stride_sum = 193, num = 73
+stride_sum = 194, num = 19
+stride_sum = 195, num = 82
+stride_sum = 196, num = 25
+stride_sum = 197, num = 1
+stride_sum = 198, num = 109
+stride_sum = 200, num = 109
+stride_sum = 202, num = 100
+stride_sum = 203, num = 1
+stride_sum = 206, num = 28
+stride_sum = 207, num = 528
+stride_sum = 208, num = 9
+stride_sum = 209, num = 1
+stride_sum = 210, num = 417
+stride_sum = 211, num = 78507
+stride_sum = 212, num = 175
+stride_sum = 213, num = 128
+stride_sum = 215, num = 47
+stride_sum = 216, num = 4
+stride_sum = 217, num = 85
+stride_sum = 218, num = 6
+stride_sum = 220, num = 60
+stride_sum = 224, num = 27
+stride_sum = 228, num = 3
+stride_sum = 229, num = 1
+stride_sum = 230, num = 16
+stride_sum = 231, num = 15
+stride_sum = 232, num = 12363
+stride_sum = 233, num = 293
+stride_sum = 236, num = 3115
+stride_sum = 239, num = 238
+stride_sum = 240, num = 6
+stride_sum = 241, num = 6
+stride_sum = 242, num = 36
+stride_sum = 245, num = 190
+stride_sum = 246, num = 186
+stride_sum = 249, num = 26
+stride_sum = 250, num = 3
+stride_sum = 251, num = 1201
+stride_sum = 252, num = 15
+stride_sum = 253, num = 22016
+stride_sum = 254, num = 175
+stride_sum = 256, num = 1
+stride_sum = 259, num = 15
+stride_sum = 264, num = 17
+stride_sum = 265, num = 68
+stride_sum = 266, num = 88
+stride_sum = 273, num = 34549
+stride_sum = 274, num = 5127
+stride_sum = 275, num = 232
+stride_sum = 277, num = 5
+stride_sum = 279, num = 5
+stride_sum = 281, num = 21
+stride_sum = 286, num = 1878
+stride_sum = 289, num = 32
+stride_sum = 292, num = 1633
+stride_sum = 294, num = 17
+stride_sum = 295, num = 4237
+stride_sum = 296, num = 126
+stride_sum = 299, num = 2179
+stride_sum = 300, num = 2249
+stride_sum = 303, num = 19
+stride_sum = 305, num = 17021
+stride_sum = 310, num = 1319
+stride_sum = 316, num = 1507
+stride_sum = 317, num = 577
+stride_sum = 320, num = 31
+stride_sum = 327, num = 109
+stride_sum = 337, num = 392
+stride_sum = 338, num = 497
+stride_sum = 342, num = 44
+stride_sum = 347, num = 2383
+stride_sum = 358, num = 413
+stride_sum = 359, num = 873
+stride_sum = 374, num = 71
+stride_sum = 376, num = 2
+stride_sum = 378, num = 5
+stride_sum = 379, num = 45
+stride_sum = 380, num = 603
+stride_sum = 400, num = 21
+stride_sum = 401, num = 638
+stride_sum = 413, num = 8
+stride_sum = 422, num = 357
+stride_sum = 439, num = 2
+stride_sum = 443, num = 741
+stride_sum = 459, num = 7870
+stride_sum = 462, num = 6718
+stride_sum = 464, num = 701
+stride_sum = 479, num = 3695
+stride_sum = 485, num = 225
+stride_sum = 506, num = 229
+stride_sum = 507, num = 7
+stride_sum = 513, num = 23
+stride_sum = 517, num = 52
+stride_sum = 525, num = 5126
+stride_sum = 527, num = 11
+stride_sum = 548, num = 18
+stride_sum = 549, num = 1742
+stride_sum = 550, num = 732
+stride_sum = 569, num = 131
+stride_sum = 570, num = 21
+stride_sum = 590, num = 25
+stride_sum = 600, num = 23
+stride_sum = 612, num = 25
+stride_sum = 654, num = 66
+stride_sum = 675, num = 20
+stride_sum = 696, num = 19
+stride_sum = 717, num = 238
+stride_sum = 756, num = 31
+stride_sum = 769, num = 961
+stride_sum = 770, num = 624
+stride_sum = 771, num = 436
+stride_sum = 772, num = 343
+stride_sum = 773, num = 265
+stride_sum = 774, num = 269
+stride_sum = 775, num = 192
+stride_sum = 776, num = 240
+stride_sum = 777, num = 204
+stride_sum = 778, num = 187
+stride_sum = 779, num = 139
+stride_sum = 780, num = 127
+stride_sum = 781, num = 151
+stride_sum = 782, num = 171
+stride_sum = 783, num = 170
+stride_sum = 784, num = 137
+stride_sum = 785, num = 130
+stride_sum = 786, num = 132
+stride_sum = 787, num = 118
+stride_sum = 788, num = 95
+stride_sum = 789, num = 96
+stride_sum = 790, num = 83
+stride_sum = 791, num = 64
+stride_sum = 792, num = 92
+stride_sum = 793, num = 56
+stride_sum = 794, num = 33
+stride_sum = 795, num = 36
+stride_sum = 796, num = 24
+stride_sum = 797, num = 34
+stride_sum = 798, num = 15
+stride_sum = 799, num = 19
+stride_sum = 800, num = 16
+stride_sum = 801, num = 32
+stride_sum = 802, num = 12
+stride_sum = 803, num = 19
+stride_sum = 804, num = 10
+stride_sum = 805, num = 9
+stride_sum = 806, num = 12
+stride_sum = 807, num = 15
+stride_sum = 808, num = 6
+stride_sum = 809, num = 4
+stride_sum = 810, num = 9
+stride_sum = 811, num = 6
+stride_sum = 812, num = 11
+stride_sum = 813, num = 9
+stride_sum = 814, num = 9
+stride_sum = 815, num = 2
+stride_sum = 816, num = 7
+stride_sum = 817, num = 1
+stride_sum = 818, num = 15
+stride_sum = 819, num = 7
+stride_sum = 820, num = 8
+stride_sum = 821, num = 9
+stride_sum = 822, num = 12
+stride_sum = 823, num = 3
+stride_sum = 824, num = 14
+stride_sum = 825, num = 11
+stride_sum = 826, num = 9
+stride_sum = 827, num = 9
+stride_sum = 828, num = 1
+stride_sum = 829, num = 6
+stride_sum = 830, num = 7
+stride_sum = 831, num = 7
+stride_sum = 832, num = 7
+stride_sum = 833, num = 6
+stride_sum = 834, num = 11
+stride_sum = 835, num = 5
+stride_sum = 836, num = 3
+stride_sum = 837, num = 2
+stride_sum = 838, num = 7
+stride_sum = 839, num = 5
+stride_sum = 840, num = 3
+stride_sum = 841, num = 7
+stride_sum = 842, num = 4
+stride_sum = 843, num = 8
+stride_sum = 844, num = 22
+stride_sum = 845, num = 11
+stride_sum = 846, num = 1
+stride_sum = 847, num = 14
+stride_sum = 848, num = 4
+stride_sum = 849, num = 3
+stride_sum = 850, num = 5
+stride_sum = 851, num = 9
+stride_sum = 852, num = 5
+stride_sum = 853, num = 3
+stride_sum = 854, num = 7
+stride_sum = 855, num = 4
+stride_sum = 856, num = 5
+stride_sum = 857, num = 3
+stride_sum = 858, num = 1
+stride_sum = 859, num = 4
+stride_sum = 860, num = 5
+stride_sum = 861, num = 2
+stride_sum = 862, num = 6
+stride_sum = 863, num = 3
+stride_sum = 864, num = 8
+stride_sum = 865, num = 4
+stride_sum = 866, num = 11
+stride_sum = 867, num = 6
+stride_sum = 868, num = 6
+stride_sum = 869, num = 7
+stride_sum = 870, num = 5
+stride_sum = 871, num = 4
+stride_sum = 872, num = 10
+stride_sum = 873, num = 7
+stride_sum = 874, num = 5
+stride_sum = 875, num = 3
+stride_sum = 876, num = 8
+stride_sum = 877, num = 6
+stride_sum = 878, num = 2
+stride_sum = 879, num = 5
+stride_sum = 880, num = 18
+stride_sum = 881, num = 24
+stride_sum = 882, num = 9
+stride_sum = 883, num = 3
+stride_sum = 884, num = 2
+stride_sum = 885, num = 1
+stride_sum = 886, num = 11
+stride_sum = 887, num = 19
+stride_sum = 888, num = 7
+stride_sum = 889, num = 17
+stride_sum = 890, num = 127
+stride_sum = 891, num = 5
+stride_sum = 892, num = 7
+stride_sum = 893, num = 5
+stride_sum = 894, num = 2
+stride_sum = 895, num = 2
+stride_sum = 896, num = 94
+stride_sum = 897, num = 13
+stride_sum = 898, num = 40
+stride_sum = 899, num = 6
+stride_sum = 901, num = 6
+stride_sum = 902, num = 4
+stride_sum = 903, num = 11
+stride_sum = 904, num = 9
+stride_sum = 905, num = 11
+stride_sum = 906, num = 12
+stride_sum = 907, num = 22
+stride_sum = 908, num = 14
+stride_sum = 909, num = 20
+stride_sum = 910, num = 3
+stride_sum = 911, num = 12
+stride_sum = 912, num = 5
+stride_sum = 913, num = 10
+stride_sum = 914, num = 4
+stride_sum = 915, num = 12
+stride_sum = 916, num = 14
+stride_sum = 917, num = 6
+stride_sum = 918, num = 12
+stride_sum = 919, num = 82
+stride_sum = 920, num = 19
+stride_sum = 921, num = 11
+stride_sum = 922, num = 8
+stride_sum = 923, num = 15
+stride_sum = 924, num = 9
+stride_sum = 925, num = 18
+stride_sum = 926, num = 10
+stride_sum = 927, num = 6
+stride_sum = 928, num = 69
+stride_sum = 929, num = 30
+stride_sum = 930, num = 22
+stride_sum = 931, num = 11
+stride_sum = 932, num = 6
+stride_sum = 933, num = 12
+stride_sum = 934, num = 6
+stride_sum = 935, num = 4
+stride_sum = 936, num = 12
+stride_sum = 937, num = 22
+stride_sum = 938, num = 16
+stride_sum = 939, num = 25
+stride_sum = 940, num = 79
+stride_sum = 941, num = 16
+stride_sum = 942, num = 16
+stride_sum = 943, num = 72
+stride_sum = 944, num = 18
+stride_sum = 945, num = 14
+stride_sum = 946, num = 17
+stride_sum = 947, num = 58
+stride_sum = 948, num = 10
+stride_sum = 949, num = 18
+stride_sum = 950, num = 20
+stride_sum = 951, num = 21
+stride_sum = 952, num = 38
+stride_sum = 953, num = 46
+stride_sum = 954, num = 50
+stride_sum = 955, num = 73
+stride_sum = 956, num = 73
+stride_sum = 957, num = 81
+stride_sum = 958, num = 77
+stride_sum = 959, num = 70
+stride_sum = 960, num = 70
+stride_sum = 961, num = 170
+stride_sum = 962, num = 102
+stride_sum = 963, num = 122
+stride_sum = 964, num = 69
+stride_sum = 965, num = 44
+stride_sum = 966, num = 32
+stride_sum = 967, num = 28
+stride_sum = 968, num = 22
+stride_sum = 969, num = 35
+stride_sum = 970, num = 29
+stride_sum = 971, num = 37
+stride_sum = 972, num = 45
+stride_sum = 973, num = 38
+stride_sum = 974, num = 39
+stride_sum = 975, num = 26
+stride_sum = 976, num = 33
+stride_sum = 977, num = 31
+stride_sum = 978, num = 32
+stride_sum = 979, num = 27
+stride_sum = 980, num = 25
+stride_sum = 981, num = 43
+stride_sum = 982, num = 253
+stride_sum = 983, num = 43
+stride_sum = 984, num = 27
+stride_sum = 985, num = 37
+stride_sum = 986, num = 33
+stride_sum = 987, num = 22
+stride_sum = 988, num = 17
+stride_sum = 989, num = 31
+stride_sum = 990, num = 44
+stride_sum = 991, num = 31
+stride_sum = 992, num = 31
+stride_sum = 993, num = 29
+stride_sum = 994, num = 29
+stride_sum = 995, num = 22
+stride_sum = 996, num = 26
+stride_sum = 997, num = 27
+stride_sum = 998, num = 14
+stride_sum = 999, num = 24
+stride_sum = 1000, num = 22
+stride_sum = 1001, num = 21
+stride_sum = 1002, num = 224
+stride_sum = 1003, num = 183598
+stride_sum = 1004, num = 180419
+stride_sum = 1005, num = 47835
+stride_sum = 1006, num = 48919
+stride_sum = 1007, num = 41445
+stride_sum = 1008, num = 36773
+stride_sum = 1009, num = 24605
+stride_sum = 1010, num = 43436
+stride_sum = 1011, num = 12461
+stride_sum = 1012, num = 11609
+stride_sum = 1013, num = 10842
+stride_sum = 1014, num = 11006
+stride_sum = 1015, num = 9344
+stride_sum = 1016, num = 8221
+stride_sum = 1017, num = 5693
+stride_sum = 1018, num = 4407
+stride_sum = 1019, num = 3290
+stride_sum = 1020, num = 2502
+stride_sum = 1021, num = 1461
+stride_sum = 1022, num = 454
+stride_sum = 1023, num = 612
+
+
+
+fetch RESULT code:  
+        succeessed                  :2242462 
+        lt_err_pagenotfound         :0 
+        lt_err_pagenotmapped        :0 
+        lt_err_piderr               :2 
+        lt_err_pidoutofmanagement   :0 
+        lt_err_vpnoutofmanagement   :3721492 
+        lt_err_ptenotassigned       :1175431 
+        lt_err_ptenotpresent        :0 
+        lt_err_ptepresent           :19707636 
+        lt_err_otherschangeit       :35 
+        LT fetch 999999 statics 
+means:  4.63 us, min:  0.49 us, max:8830.06 us
+                tail latency: 
+                0.100:  1.47
+                0.200:  1.83
+                0.300:  1.91
+                0.400:  1.97
+                0.500:  2.01
+                0.600:  2.05
+                0.700:  2.10
+                0.800:  2.19
+                0.900:  2.35
+                0.990: 97.29
+                0.999:140.21
+
+evict RESULT code:  
+        succeessed                  :0 
+        lt_err_pagenotfound         :0 
+        lt_err_pagenotmapped        :0 
+        lt_err_piderr               :0 
+        lt_err_pidoutofmanagement   :0 
+        lt_err_vpnoutofmanagement   :0 
+        lt_err_ptenotassigned       :0 
+        lt_err_ptenotpresent        :0 
+        lt_err_ptepresent           :0 
+        lt_err_otherschangeit       :0 
+        id = 0, sum = 17448891
+Segmentation fault (core dumped)
+************
+[11996.277457] LTINFO: prefetch successed           :    2242497 hits, avgcost:       9750 cycles
+[11996.277459] LTINFO: prefetch failed              :   24604561 hits, avgcost:         24 cycles
+[11996.277460] LTINFO: prefetch check page state    :   26847058 hits, avgcost:        169 cycles
+[11996.277477] LTINFO: prefetch prefetch page       :    2242497 hits, avgcost:       9675 cycles
+[11996.277478] LTINFO: get page for swapin          :    4481940 hits, avgcost:       4232 cycles
+[11996.277480] LTINFO: get_spage waitlock           :  235227844 hits, avgcost:        250 cycles
+[11996.277481] LTINFO: get page check cache         :  235227844 hits, avgcost:         25 cycles
+[11996.277490] LTINFO: get page wait-slotstate      :  232985015 hits, avgcost:        655 cycles
+[11996.277500] LTINFO: get page allocpage           :  232985015 hits, avgcost:       4444 cycles
+[11996.277503] LTINFO: get page rewait-sl           :  232985015 hits, avgcost:         65 cycles
+[11996.277506] LTINFO: get page writestate          :  232985015 hits, avgcost:        130 cycles
+[11996.277510] LTINFO: send prefetch req            :    2239644 hits, avgcost:       1391 cycles
+[11996.277511] LTINFO: prefetch handle_pte in sc    :        379 hits, avgcost:       4517 cycles
+[11996.277512] LTINFO: handle pte in wq failed      :        564 hits, avgcost:       2266 cycles
+[11996.277513] LTINFO: handle pte in wq sucessed    :    2239080 hits, avgcost:       5549 cycles
+[11996.277514] LTINFO: check pte state              :    2240023 hits, avgcost:        586 cycles
+[11996.277520] LTINFO: get the page                 :    2239443 hits, avgcost:       1148 cycles
+[11996.277521] LTINFO: addmapping                   :    2239443 hits, avgcost:       3406 cycles
+[11996.277522] LTINFO: get pmdlock                  :    2239215 hits, avgcost:        132 cycles
+[11996.277523] LTINFO: set pte                      :    2239203 hits, avgcost:       1588 cycles
+[11996.277523] LTINFO: addrmap                      :    2239203 hits, avgcost:        155 cycles
+[11996.277524] LTINFO: addtolist                    :    2239203 hits, avgcost:        364 cycles
+[11996.277525] LTINFO: addcounter                   :    2239203 hits, avgcost:        485 cycles
+[11996.277526] LTINFO: updatemmucache               :    2239203 hits, avgcost:         27 cycles
+[11996.277532] LTINFO: unlockOUTmapping             :    2239203 hits, avgcost:         61 cycles
+[11996.277533] LTINFO: reclaim failed               :          0 hits, avgcost:          0 cycles
+[11996.277534] LTINFO: reclaim sucessed             :          0 hits, avgcost:          0 cycles
+[11996.277535] LTINFO: reclaim get pagelist         :    7284166 hits, avgcost:       4792 cycles
+[11996.277536] LTINFO: reclaim check page state     :  233093290 hits, avgcost:         59 cycles
+[11996.277538] LTINFO: reclaim get swapslot&lock    :  233093290 hits, avgcost:        109 cycles
+[11996.277538] LTINFO: reclaim nude pte             :  233093290 hits, avgcost:       2885 cycles
+[11996.277539] LTINFO: reclaim flush dirty          :   36569730 hits, avgcost:        589 cycles
+[11996.277545] LTINFO: reclaim release page         :  233093290 hits, avgcost:        188 cycles
+[11996.277546] LTINFO: reclaim zero ref             :  233093290 hits, avgcost:         73 cycles
+[11996.277547] LTINFO: reclaim give freelist        :  233093290 hits, avgcost:         29 cycles
+[11996.277548] LTINFO: reclaim putback              :          1 hits, avgcost:       2444 cycles
+[11996.277549] LTINFO: reclaim unmapflush           :    7284166 hits, avgcost:         83 cycles
+[11996.277550] LTINFO: reclaim freepagelist         :    7284166 hits, avgcost:       6256 cycles
+[11996.277551] LTINFO: sl insert memlist            :  233226352 hits, avgcost:         70 cycles
+[11996.277553] LTINFO: sl rmfrom memlist            :     133134 hits, avgcost:        115 cycles
+[11996.277559] LTINFO: sl putback memlist           :          1 hits, avgcost:        200 cycles
+[11996.277562] LTINFO: do_swap_page                 :  230745904 hits, avgcost:      20015 cycles
+[11996.277563] LTINFO: state_recheck                :  230745904 hits, avgcost:         71 cycles
+[11996.277565] LTINFO: get_req_page                 :  230745904 hits, avgcost:      17397 cycles
+[11996.277566] LTINFO: find_get_sendreq             :  230745853 hits, avgcost:       6706 cycles
+[11996.277567] LTINFO: reclaim_page                 :    7284166 hits, avgcost:     127327 cycles
+[11996.277568] LTINFO: get_cached_swappage          :  230745904 hits, avgcost:       5799 cycles
+[11996.277570] LTINFO: send trans_req               :  230745371 hits, avgcost:        544 cycles
+[11996.277575] LTINFO: poll_wait                    :  230745853 hits, avgcost:      10577 cycles
+[11996.277577] LTINFO: add_mapping_force            :  230745853 hits, avgcost:       2404 cycles
+[11996.277578] LTINFO: amf-wait_page_lock           :  230745853 hits, avgcost:         57 cycles
+[11996.277578] LTINFO: amf-lock_ptl                 :  230745853 hits, avgcost:         65 cycles
+[11996.277582] LTINFO: amf-set-pte                  :  230745812 hits, avgcost:       1202 cycles
+[11996.277583] LTINFO: amf-add-rmap                 :  230745812 hits, avgcost:         64 cycles
+[11996.277584] LTINFO: amf-addtolist                :  230745812 hits, avgcost:        245 cycles
+[11996.277585] LTINFO: amf-addcounter               :  230745812 hits, avgcost:        419 cycles
+[11996.277591] LTINFO: amf-updatemmucache           :  230745812 hits, avgcost:         24 cycles
+[11996.277592] LTINFO: amf-unlockOUT                :  230745812 hits, avgcost:         51 cycles
+[11996.277593] LTINFO: trylock-in-wq                :    4478430 hits, avgcost:        145 cycles
+[11996.277594] LTINFO: do_wp_page                   :   35480836 hits, avgcost:        126 cycles
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual check will be computed:
+      ||Ax-b||_oo / ( eps * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )
+- The relative machine precision (eps) is taken to be               1.110223e-16
+- Computational tests pass if scaled residuals are less than                16.0
+
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR00L2L2       10800   192     1     2            1675.82             5.0124e-01
+HPL_pdgesv() start time Thu Jul  7 08:02:33 2022
+
+HPL_pdgesv() end time   Thu Jul  7 08:30:28 2022
+
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=   4.23469435e-03 ...... PASSED
+================================================================================
+
+Finished      1 tests with the following results:
+              1 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+End of Tests.
+================================================================================
+
+real	28m24.872s
+user	22m53.726s
+sys	32m57.077s
+
+
+
+
+

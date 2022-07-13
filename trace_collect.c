@@ -55,6 +55,7 @@ cpu_set_t mask_cpu_2;
 
 cpu_set_t mask_kt;
 cpu_set_t mask_cpu_8;
+cpu_set_t mask_cpu_prefetch_seek;
 cpu_set_t mask_cpu_prefetch;
 cpu_set_t mask_prefetch_seek;
 
@@ -657,7 +658,7 @@ void print_pthread_id(void *arg){
 //				task->ptr_r  = task->ptr_r + prefetch_tmp_len / 50;		
 				task->ptr_r  = task->ptr_r + prefetch_tmp_len / 2;		
 				task->delete_num += prefetch_tmp_len / 2;
-				// printf("***********prefetch_tmp_len = %lu\n", prefetch_tmp_len);
+				printf("***********prefetch_tmp_len = %lu\n", prefetch_tmp_len);
 			}
 			else
 
@@ -712,7 +713,8 @@ void init_prefetch_thread(){
 	
 	
 	pthread_create(&tid_4, NULL, prefetch_monitor_seek, NULL);
-	pthread_setaffinity_np(tid_4, sizeof(mask_cpu_8), &mask_cpu_8);
+//	pthread_setaffinity_np(tid_4, sizeof(mask_cpu_8), &mask_cpu_8);
+	pthread_setaffinity_np(tid_4, sizeof(mask_cpu_prefetch_seek), &mask_cpu_prefetch_seek);
 //	pthread_setaffinity_np(tid_4, sizeof(mask_prefetch_seek), &mask_prefetch_seek);
 
 #ifdef USE_MORE_CORE
@@ -924,7 +926,7 @@ void training_seek(){
 				;
 				print_round ++;
 				// if(print_round % 20 == 1)
-				//     printf("    <train buffer> len = %lu\n", tmp_tb_len);
+				     printf("    <train buffer> len = %lu\n", tmp_tb_len);
 				tb_r_ptr += (tmp_tb_len / 2);
 			}
 			
@@ -1934,10 +1936,10 @@ void analysis_trace_buff(unsigned long long start_addr, unsigned long long read_
 	if(times_use % PRINT_ROUND == (PRINT_ROUND - 1))
 	{
 		end_time = get_cycles();
-//		printf("round %d,  use %lu cycles , per Byte use %lu cycles \n", times_use, end_time - start_time, (end_time - start_time) / read_len);
+		printf("round %d,  use %lu cycles , per Byte use %lu cycles \n", times_use, end_time - start_time, (end_time - start_time) / read_len);
 		unsigned long tmp_ans = (end_time - start_time) / real_analysis_num;
 //		if(tmp_ans > 6 )
-		printf("[%8lu : %8lu] round %d,  use %lu cycles , every 6 Bytes use %.3lf cycles \n", get_lru_size(), memory_buffer_start_addr[2],times_use, end_time - start_time, (double)(end_time - start_time) / (double)real_analysis_num);
+//		printf("[%8lu : %8lu] round %d,  use %lu cycles , every 6 Bytes use %.3lf cycles \n", get_lru_size(), memory_buffer_start_addr[2],times_use, end_time - start_time, (double)(end_time - start_time) / (double)real_analysis_num);
 		start_time = get_cycles();
 		real_analysis_num = 0;
 		
@@ -2548,9 +2550,11 @@ int main(int argc, char **argv)
 
 	printf("%d\n",getpid());
 /******************For page management**************/
+#ifndef USING_FASTSWAP
 	init_user_engine();
 	init_evict_thread(); // evict thread start
 	init_async_evict(); // async evict consume_build
+#endif
 
 	
 
@@ -2606,6 +2610,7 @@ int main(int argc, char **argv)
 	CPU_ZERO(&mask_cpu_2);
 	CPU_ZERO(&mask_kt);
 	CPU_ZERO(&mask_cpu_8);
+	CPU_ZERO(&mask_cpu_prefetch_seek);
 //	CPU_ZERO(&mask_prefetch_seek);
 #ifdef USE_MORE_CORE
 	CPU_ZERO(&mask_cpu_prefetch);
@@ -2622,7 +2627,8 @@ int main(int argc, char **argv)
 
 	//0~13 cpu0 , 14~27 cpu1, 28~41 cpu0 , 42~ 55 cpu1
 
-	CPU_SET(use_cpu , &mask_cpu_8);
+//	CPU_SET(use_cpu , &mask_cpu_8);
+	CPU_SET(PREFETCH_SEEK_CORE , &mask_cpu_prefetch_seek);
 #ifdef USE_MORE_CORE
 //	for(use_cpu = 18; use_cpu < 28; use_cpu ++){
 	for(use_cpu = 20; use_cpu < 28; use_cpu ++){
@@ -2987,7 +2993,9 @@ times_u[0] = get_cycles();
 	print_async_msg();
 	print_msg_evict();
 	printf("**************\n\n");
+#ifndef USING_FASTSWAP
 	check_ppn_list();
+#endif
 
 	for(int p = 0; p < max_prefetcher_count; p ++){
 		printf("delete num = %d, id = %d\n", prefetcher_task_set[p].delete_num, p);
@@ -3042,8 +3050,10 @@ times_u[0] = get_cycles();
 	    munmap(kt_hmtt_p_kernel_trace, kt_hmtt_dev_size);
 	    close(kt_ff);
 	close(ff);
-
+#ifndef USING_FASTSWAP
 	unmap_memory_and_state();
+#endif
+
 
 #ifdef EVICT_ON
 	//ummap_evict_buffer();

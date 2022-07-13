@@ -1,0 +1,78 @@
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=   4.23469435e-03 ...... PASSED
+================================================================================
+
+Finished      1 tests with the following results:
+              1 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+End of Tests.
+================================================================================
+
+real	3m21.621s
+user	5m33.646s
+sys	1m9.403s
+
+[13085.173901] LTINFO: prefetch successed           :          0 hits, avgcost:          0 cycles
+[13085.173903] LTINFO: prefetch failed              :          0 hits, avgcost:          0 cycles
+[13085.173904] LTINFO: prefetch check page state    :          0 hits, avgcost:          0 cycles
+[13085.173905] LTINFO: prefetch prefetch page       :          0 hits, avgcost:          0 cycles
+[13085.173906] LTINFO: get page for swapin          :          0 hits, avgcost:          0 cycles
+[13085.173907] LTINFO: get_spage waitlock           :    7165201 hits, avgcost:        153 cycles
+[13085.173908] LTINFO: get page check cache         :    7165201 hits, avgcost:         25 cycles
+[13085.173910] LTINFO: get page wait-slotstate      :    7165201 hits, avgcost:         49 cycles
+[13085.173913] LTINFO: get page allocpage           :    7165201 hits, avgcost:       5580 cycles
+[13085.173914] LTINFO: get page rewait-sl           :    7165201 hits, avgcost:         65 cycles
+[13085.173915] LTINFO: get page writestate          :    7165201 hits, avgcost:        149 cycles
+[13085.173916] LTINFO: send prefetch req            :          0 hits, avgcost:          0 cycles
+[13085.173917] LTINFO: prefetch handle_pte in sc    :          0 hits, avgcost:          0 cycles
+[13085.173918] LTINFO: handle pte in wq failed      :          0 hits, avgcost:          0 cycles
+[13085.173919] LTINFO: handle pte in wq sucessed    :          0 hits, avgcost:          0 cycles
+[13085.173920] LTINFO: check pte state              :          0 hits, avgcost:          0 cycles
+[13085.173924] LTINFO: get the page                 :          0 hits, avgcost:          0 cycles
+[13085.173925] LTINFO: addmapping                   :          0 hits, avgcost:          0 cycles
+[13085.173926] LTINFO: get pmdlock                  :          0 hits, avgcost:          0 cycles
+[13085.173927] LTINFO: set pte                      :          0 hits, avgcost:          0 cycles
+[13085.173928] LTINFO: addrmap                      :          0 hits, avgcost:          0 cycles
+[13085.173929] LTINFO: addtolist                    :          0 hits, avgcost:          0 cycles
+[13085.173930] LTINFO: addcounter                   :          0 hits, avgcost:          0 cycles
+[13085.173931] LTINFO: updatemmucache               :          0 hits, avgcost:          0 cycles
+[13085.173934] LTINFO: unlockOUTmapping             :          0 hits, avgcost:          0 cycles
+[13085.173935] LTINFO: reclaim failed               :          0 hits, avgcost:          0 cycles
+[13085.173936] LTINFO: reclaim sucessed             :          0 hits, avgcost:          0 cycles
+[13085.173937] LTINFO: reclaim get pagelist         :     227295 hits, avgcost:      14586 cycles
+[13085.173939] LTINFO: reclaim check page state     :    7273440 hits, avgcost:         67 cycles
+[13085.173940] LTINFO: reclaim get swapslot&lock    :    7273440 hits, avgcost:        209 cycles
+[13085.173941] LTINFO: reclaim nude pte             :    7273440 hits, avgcost:       3098 cycles
+[13085.173942] LTINFO: reclaim flush dirty          :    6427993 hits, avgcost:        519 cycles
+[13085.173946] LTINFO: reclaim release page         :    7273440 hits, avgcost:        326 cycles
+[13085.173947] LTINFO: reclaim zero ref             :    7273440 hits, avgcost:         73 cycles
+[13085.173948] LTINFO: reclaim give freelist        :    7273440 hits, avgcost:         29 cycles
+[13085.173949] LTINFO: reclaim putback              :          0 hits, avgcost:          0 cycles
+[13085.173950] LTINFO: reclaim unmapflush           :     227295 hits, avgcost:         67 cycles
+[13085.173951] LTINFO: reclaim freepagelist         :     227295 hits, avgcost:      13742 cycles
+[13085.173952] LTINFO: sl insert memlist            :    7406827 hits, avgcost:         68 cycles
+[13085.173953] LTINFO: sl rmfrom memlist            :     133343 hits, avgcost:        115 cycles
+[13085.173957] LTINFO: sl putback memlist           :          0 hits, avgcost:          0 cycles
+[13085.173958] LTINFO: do_swap_page                 :    7165201 hits, avgcost:      20682 cycles
+[13085.173959] LTINFO: state_recheck                :    7165201 hits, avgcost:         80 cycles
+[13085.173961] LTINFO: get_req_page                 :    7165201 hits, avgcost:      18251 cycles
+[13085.173962] LTINFO: find_get_sendreq             :    7165201 hits, avgcost:       7197 cycles
+[13085.173963] LTINFO: reclaim_page                 :     227295 hits, avgcost:     171594 cycles
+[13085.173964] LTINFO: get_cached_swappage          :    7165201 hits, avgcost:       6266 cycles
+[13085.173965] LTINFO: send trans_req               :    7165201 hits, avgcost:        619 cycles
+[13085.173969] LTINFO: poll_wait                    :    7165201 hits, avgcost:      10944 cycles
+[13085.173969] LTINFO: add_mapping_force            :    7165201 hits, avgcost:       2210 cycles
+[13085.173971] LTINFO: amf-wait_page_lock           :    7165201 hits, avgcost:         57 cycles
+[13085.173971] LTINFO: amf-lock_ptl                 :    7165201 hits, avgcost:         64 cycles
+[13085.173973] LTINFO: amf-set-pte                  :    7165201 hits, avgcost:       1222 cycles
+[13085.173974] LTINFO: amf-add-rmap                 :    7165201 hits, avgcost:         62 cycles
+[13085.173975] LTINFO: amf-addtolist                :    7165201 hits, avgcost:        244 cycles
+[13085.173976] LTINFO: amf-addcounter               :    7165201 hits, avgcost:        208 cycles
+[13085.173980] LTINFO: amf-updatemmucache           :    7165201 hits, avgcost:         24 cycles
+[13085.173981] LTINFO: amf-unlockOUT                :    7165201 hits, avgcost:         52 cycles
+[13085.173981] LTINFO: trylock-in-wq                :          0 hits, avgcost:          0 cycles
+[13085.173982] LTINFO: do_wp_page                   :    5941516 hits, avgcost:        119 cycles
+
