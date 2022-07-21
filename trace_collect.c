@@ -132,6 +132,11 @@ volatile unsigned long *ppn2vpn = NULL;
 volatile unsigned long *ppn2rpt = NULL;
 
 
+unsigned long pgtable_transfer( unsigned long ppn ){
+	return ppn2rpt[ppn];
+}
+
+
 volatile int *ppn2pid = NULL;
 int glb_start_analysis = 0;
 volatile unsigned long long total_trace = 0;
@@ -1936,7 +1941,7 @@ void analysis_trace_buff(unsigned long long start_addr, unsigned long long read_
 	if(times_use % PRINT_ROUND == (PRINT_ROUND - 1))
 	{
 		end_time = get_cycles();
-		printf("round %d,  use %lu cycles , per Byte use %lu cycles \n", times_use, end_time - start_time, (end_time - start_time) / read_len);
+//		printf("round %d,  use %lu cycles , per Byte use %lu cycles \n", times_use, end_time - start_time, (end_time - start_time) / read_len);
 		unsigned long tmp_ans = (end_time - start_time) / real_analysis_num;
 //		if(tmp_ans > 6 )
 //		printf("[%8lu : %8lu] round %d,  use %lu cycles , every 6 Bytes use %.3lf cycles \n", get_lru_size(), memory_buffer_start_addr[2],times_use, end_time - start_time, (double)(end_time - start_time) / (double)real_analysis_num);
@@ -2061,7 +2066,8 @@ void analysis_single_trace(char *trace_start){
 
 //	filter_table( paddr, duration_all );
 
-	filter_check(paddr, duration_all);
+	multi_filter_table(paddr, duration_all);
+//	filter_check(paddr, duration_all); // for prefetch and traditional eviction
 	return 0;
 //	insert_entry(paddr >> 12, duration_all);
 //	return 0; return ;
@@ -2163,7 +2169,10 @@ void analysis_single_trace(char *trace_start){
 		}
 		unsigned long long pmd_ppn =(ppn >> 8);
 
+
+#ifdef USING_NUM_PREFETCH
 		new_ppn[ppn].num ++;
+#endif
 
 //		filter_check(paddr, duration_all);
   //              return 0;
@@ -2179,6 +2188,8 @@ void analysis_single_trace(char *trace_start){
 #endif 
 
 		{
+
+#ifdef USING_NUM_PREFETCH
 //			if(ppn2num[ppn] % 13 == 0)
 			if( (new_ppn[ppn].num ) % 9 == 8)
 //			if(ppn2pid[ppn] != 0 &&  ppn2pid[ppn] == using_pid)
@@ -2217,6 +2228,7 @@ void analysis_single_trace(char *trace_start){
 //				}
 //				store_to_tb(ppn, duration_all);
 			}
+#endif
 		}
 }
 
@@ -2530,7 +2542,24 @@ unsigned long adrees_base = 0;
 
 int main(int argc, char **argv)
 {
+	now_pid = getpid();
 	unsigned long t0,t1;
+	printf(" sizeof(unsigned long ) = %d, (1 << 0) = %d\n", sizeof(unsigned long), 1 << 0);
+//	multi_filter_table(1, 1);
+	int moniter_ppn = 0;
+	moniter_ppn = 0;
+//	printf("value = 0x%lx\n", new_ppn[moniter_ppn].bitmap);
+//	multi_filter_table(64, 1);
+//	printf("value = 0x%lu\n", new_ppn[moniter_ppn].bitmap);
+	int ti = 2;
+	for(ti = 0;ti < 64; ti ++){
+		multi_filter_table(ti * 64, 1);
+		printf("value = 0x%lu, NUM = %lu, 0X%lx\n", new_ppn[moniter_ppn].bitmap, new_ppn[moniter_ppn].bitmap >> (60), 0xFFFFFFFFFFFFFFF& new_ppn[moniter_ppn].bitmap);
+	}
+
+//	return 0;
+
+	init_prefetch_structure();
 
 	unsigned long value = ULONG_MAX;
 	unsigned count = 1;
@@ -2552,10 +2581,11 @@ int main(int argc, char **argv)
 /******************For page management**************/
 #ifndef USING_FASTSWAP
 	init_user_engine();
+#endif
+#ifdef EVICT_ON
 	init_evict_thread(); // evict thread start
 	init_async_evict(); // async evict consume_build
 #endif
-
 	
 
 // #define lt_1g_page_size (1UL << 18)
@@ -2659,7 +2689,6 @@ int main(int argc, char **argv)
 
 
 	
-	now_pid = getpid();
 	printf("start maini pid = %d\n",getpid());
 
 
@@ -2852,8 +2881,11 @@ int main(int argc, char **argv)
 #ifdef OTHERPPN
 	new_ppn = ( struct ppn2num_t * ) start_new_ppn_address;
 #endif
+
 	for(int j = 0; j < MAX_PPN; j++){
+#ifdef USING_NUM_PREFETCH
 		new_ppn[j].num = 0;
+#endif
 //      unsigned long num;
 
 #ifdef MONITOER_PREFETCH

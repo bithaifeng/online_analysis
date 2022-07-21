@@ -2,17 +2,25 @@
 #define HMTT_CONFIG_H
 
 
- #define PREFETCH_ON
+// #define PREFETCH_ON
 
 // #define exit_prefetch_when_nomem
 
 
 
-//#define EVICT_ON
+#define EVICT_ON
+
+#define USING_BITMAP
 //#define USING_LRU
 //#define USING_RRIP
 //#define USING_FIFO
 
+
+#ifdef USING_BITMAP
+void store_to_eb( struct evict_transfer_entry_struct tmp_entry );
+#else
+extern void store_to_eb(unsigned long ppn, int inter_page);
+#endif
 
 
 #include "memory_manage.h"
@@ -21,7 +29,6 @@
 #include "store_file.h"
 
 #include <queue>
-
 
 
 #define STORE_FILE
@@ -34,10 +41,11 @@
 
 
 
-#define max_prefetcher_count 3
+#define max_prefetcher_count 5
 
 #define PREFETCH_SEEK_CORE 16
-#define PREFETCH_CORE_ID 7
+//#define PREFETCH_CORE_ID 7
+#define PREFETCH_CORE_ID 9
 
 //#define PREFETCH_CORE_ID 17
 #define ASYNC_EVICT_CORE_ID 18
@@ -119,7 +127,6 @@ static const char *lt_access_filename = "/dev/lt_accesspage_state";
 
 // no mem when try to prefetch
 #define lt_err_nomem 10
-
 
 
 

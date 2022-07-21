@@ -15,15 +15,35 @@ static inline __u64 get_cycles(void)
 }
 
 
-
+#ifdef USING_BITMAP
+struct evict_transfer_entry_struct evict_buffer_train[ EVICT_BUFFER_SIZE ] = {0};
+#else
 unsigned long evict_buffer_train[EVICT_BUFFER_SIZE] = {0};
+#endif
 volatile unsigned long eb_w_ptr = 0, eb_r_ptr = 0;
 
 unsigned long store_to_eb_num = 0;
 unsigned long page_num_in_list = 0;
 
+#ifdef USING_BITMAP
+void store_to_eb( struct evict_transfer_entry_struct tmp_entry )
+{
+	if(tmp_entry.ppn >= MAX_PPN)
+                return ;
 
-void store_to_eb(unsigned long ppn, int inter_page){
+        store_to_eb_num ++;
+
+        if( eb_w_ptr - eb_r_ptr > EVICT_BUFFER_SIZE ){
+                printf("$$$$$ evict buffer overflow , len = %lu!!!!\n", eb_w_ptr - eb_r_ptr);
+                return 0;
+        }
+        evict_buffer_train[ eb_w_ptr % EVICT_BUFFER_SIZE ].ppn = tmp_entry.ppn;
+        evict_buffer_train[ eb_w_ptr % EVICT_BUFFER_SIZE ].value = tmp_entry.value;
+        eb_w_ptr ++;
+}
+#else
+void store_to_eb(unsigned long ppn, int inter_page)
+{
         if(ppn >= MAX_PPN)
                 return ;
         
@@ -36,6 +56,7 @@ void store_to_eb(unsigned long ppn, int inter_page){
         evict_buffer_train[ eb_w_ptr % EVICT_BUFFER_SIZE ] = ppn;
 	eb_w_ptr ++;
 }
+#endif
 
 
 
@@ -150,13 +171,152 @@ void local_mem_pressure_check(){
 
 unsigned long tmp_rdtsc[4][2] = {0};
 unsigned long record_insert_ret[30] = {0};
+#define RESERVED_BITS 4
 
+
+#define PAGE_ATTRITUTE_SCAN 0
+#define PAGE_ATTRITUTE_RANDOM 1
+#define PAGE_ATTRITUTE_STRIDE_L1 2
+#define PAGE_ATTRITUTE_STRIDE_L2 3
+#define PAGE_ATTRITUTE_STRIDE_L1_NOT 4
+#define PAGE_ATTRITUTE_STRIDE_L2_NOT 5
+
+unsigned long page_classify[20] = {0};
+unsigned long call_classify_page_num = 0;
+unsigned long st = 0, ed = 0;
+unsigned long all_time = 0;
+
+
+void classify_page( struct evict_transfer_entry_struct wait_tmp){
+	if(call_classify_page_num == 0) st = get_cycles();
+	st = get_cycles();
+	unsigned long value = wait_tmp.value;
+	call_classify_page_num ++;
+	if(call_classify_page_num % 500000 == 0){
+//		ed = get_cycles();
+//		printf("call_classify_page_num = %lu, value = 0x%lx, average_cycle = %.4lf\n", call_classify_page_num, wait_tmp.value, (double)(ed - st)/500000.0  );
+		printf("call_classify_page_num = %lu, value = 0x%lx, average_cycle = %.4lf\n", call_classify_page_num, wait_tmp.value, (double)(all_time)/500000.0  );
+		all_time = 0;
+//		st = get_cycles();
+
+	}
+	//check 
+	int ladder[2][64] = {0};
+	int len_01[2] = {0};
+	value = value & ( ((1ULL << (64 - RESERVED_BITS)) ) - 1);
+	int index = 0;
+	int last_bit = value & 1;
+	int now_bit = 0;
+	int number_1[2] = {0};
+	len_01[last_bit] ++;
+	number_1[last_bit] ++;
+	index ++; // start scan bit 1
+	value = value >> 1;
+	int max_ladder_len = 0;
+	while(value != 0){
+		now_bit = value & 1;
+		number_1[now_bit] ++;
+		if(now_bit == last_bit){
+			len_01[last_bit] ++;
+		}
+		else{
+			if(max_ladder_len < len_01[!now_bit] && last_bit == 1)
+				max_ladder_len = len_01[!now_bit];
+			//not equal
+			ladder[ !now_bit  ][ len_01[!now_bit] ] ++;	// update corresponding N-ladder's number
+			len_01[now_bit] ++;
+			len_01[!now_bit] = 0;
+			last_bit = now_bit;
+		}
+		value = value >> 1;
+		index ++;
+	}
+	if( len_01[1] < (1ULL << RESERVED_BITS) - 1){
+		if(index == 64 - RESERVED_BITS ){
+			//meet last bits
+			if(last_bit == 1){
+				len_01[last_bit] += ( RESERVED_BITS );
+				if(max_ladder_len < len_01[last_bit] )
+					max_ladder_len = len_01[last_bit];
+
+				ladder[last_bit][ len_01[last_bit] ] ++;
+			}
+		}
+		else{
+			ladder[1][ (1ULL << RESERVED_BITS) - 1 - len_01[1] ] ++;
+			if(max_ladder_len < (1ULL << RESERVED_BITS) - 1 - len_01[1] )
+				max_ladder_len = (1ULL << RESERVED_BITS) - 1 - len_01[1];
+		}
+	}
+	if( max_ladder_len >= 7 ){
+		page_classify[ PAGE_ATTRITUTE_SCAN ] ++;
+	}
+	else if( ladder[1][1] >= 7){
+		if(ladder[0][1] >= 6 || ladder[0][2] >= 6 || ladder[0][3] >= 6 ){
+			//stride page
+			page_classify[ PAGE_ATTRITUTE_STRIDE_L1 ] ++;	
+		}
+		else
+			page_classify[ PAGE_ATTRITUTE_STRIDE_L1_NOT ] ++;	
+	}
+	else if( ladder[1][2] >= 4 ){
+		if(ladder[0][1] >= 3 || ladder[0][2] >= 3 || ladder[0][3] >= 3 ){
+			// stride page
+			page_classify[ PAGE_ATTRITUTE_STRIDE_L2 ] ++;
+		}
+		else 
+			page_classify[ PAGE_ATTRITUTE_STRIDE_L2_NOT ] ++;
+	}
+	else
+			page_classify[ PAGE_ATTRITUTE_RANDOM ] ++;
+	ed = get_cycles();
+	all_time += (ed - st);
+
+}
+
+struct evict_transfer_entry_struct tmp_evict_tes;
 
 void async_evict_seek(){
 	unsigned long st,ed;
 	printf("$$$ init async_seek\n");
 	int ret = -1;
 	while(1){
+
+
+#ifdef USING_BITMAP
+		if(eb_r_ptr < eb_w_ptr){
+                        unsigned long tmp_tb_len = eb_w_ptr - eb_r_ptr;
+                        if(tmp_tb_len > max_evicting_len){
+                                max_evicting_len = tmp_tb_len;
+                        }
+			unsigned long tmpi;
+
+
+			for(tmpi = 0;tmpi < tmp_tb_len; tmpi ++){
+				tmp_evict_tes = evict_buffer_train[ eb_r_ptr % EVICT_BUFFER_SIZE ]; 
+
+#if 1			
+				//check the pid_first
+				unsigned long value_s , vpn_s;
+	                        int pid_s;
+				if(tmp_evict_tes.ppn >= MAX_PPN)
+					continue;
+			
+				if(tmp_evict_tes.ppn >= (32ULL << 18))
+					continue;
+//				printf(" ppn = 0x%lx\n" , tmp_evict_tes.ppn);
+//	                        value_s =  ppn2rpt[ tmp_evict_tes.ppn ];
+	                        value_s =  pgtable_transfer( tmp_evict_tes.ppn );//ppn2rpt[ tmp_evict_tes.ppn ];
+	                        vpn_s = ( value_s  >> 16) & 0xffffffffff;
+	                        pid_s =  value_s & 0xffff;
+				if(pid_s != now_pid && pid_s != 0)
+#endif
+					classify_page(tmp_evict_tes);
+	                        eb_r_ptr ++;
+			}
+                }
+#endif
+
 
 #ifdef USING_FIFO
 		if(eb_r_ptr < eb_w_ptr){
@@ -168,6 +328,7 @@ void async_evict_seek(){
 		}
 #endif
 		
+#ifndef USING_BITMAP
 #ifndef USING_FIFO
 		if(eb_r_ptr < eb_w_ptr)
 		{
@@ -213,9 +374,9 @@ void async_evict_seek(){
                         tmp_rdtsc[1][1] ++;
 		}
 #endif
-
+#endif
 		st = get_cycles();
-		local_mem_pressure_check();
+//		local_mem_pressure_check();
 		ed = get_cycles(); 
                 tmp_rdtsc[1][0] += (ed - st);
                 tmp_rdtsc[1][1] ++;
@@ -251,5 +412,11 @@ void print_async_msg(){
 			printf("record_insert_ret[%d], num = %lu\n", i, record_insert_ret[i]);
 		}
 	}
+	for(i = 0; i < 6; i++){
+		if(page_classify[i] != 0){
+			printf("## page identify, i = %d, number = %lu\n", i, page_classify[i]);
+		}
+	}
+
 }
 

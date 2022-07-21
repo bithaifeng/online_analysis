@@ -5,10 +5,27 @@
 map<unsigned long, unsigned char> ppn2train_buffer;
 
 
+int all_stride[1024] = {0};
+int not_find_stride = 0;
+int not_find_ripple_stride = 0;
+int all_stride_sum[1024] = {0};
+
+int stride_sum_count[2048] = {0};
+#define page_flow_interval 3000
+#define smaller_page_interval 250
+
+int page_flow_length_distribute[10000] = {0};
+int page_flow_length_distribute_number[10000] = {0};
+int page_flow_length_distribute_smaller[20] = {0};
+int page_flow_length_distribute_number_smaller[20] = {0};
+int max_page_flow_lengh = 0;
+
 unsigned long hot_physical_number = 0;
 
 struct LSD_vpn table_lsd[LSDSTREAM_SIZE] = {0};
 map<unsigned long, int> ppn2LSD_vpn; 
+
+extern int get_ripple_stride(int inx, int new_stride);
 
 
 LRUCache *lruCache = NULL;
@@ -98,12 +115,18 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 	int ret = -1;
 	unsigned long ppn = p_addr >> 12;
 //	if(ppn2train_buffer.count(ppn) == 0){// also can use bloom filter
+#ifdef USING_NUM_PREFETCH
 	new_ppn[ppn].num ++;
 
 //	if( (new_ppn[ppn].num % 33 ) == 32){  //equals new_ppn[ppn].num >= 8
-	if( (new_ppn[ppn].num  ) ==  MAX_HOT_NUM){  //equals new_ppn[ppn].num >= 8
+	if( (new_ppn[ppn].num  ) ==  MAX_HOT_NUM)
+#endif
+	{  //equals new_ppn[ppn].num >= 8
 //	if( (new_ppn[ppn].num % 2 ) == 1){  //equals new_ppn[ppn].num >= 8
+#ifdef USING_NUM_PREFETCH
 		new_ppn[ppn].num = 0;
+#endif
+
 //		ppn2train_buffer[ppn] = 1;
 #ifndef USETIMER
 		store_to_tb(ppn, tt);
@@ -137,8 +160,8 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 		        if( lt_check_page_charging(ppn) )
 #endif
 			{
-				store_to_pb(ppn, 1900);
-//				store_to_tb(ppn, tt);
+//				store_to_pb(ppn, 1900);
+				store_to_tb(ppn, tt);
 //				store_to_eb(ppn, tt);				
 				;
 			}
@@ -222,9 +245,15 @@ int caculate_stride(int inx){
 	return 0;
 }
 
-int all_stride[1024] = {0};
-int all_stride_sum[1024] = {0};
-int not_find_stride = 0;
+
+
+void init_prefetch_structure(){
+	int i;
+	for(i = 0 ; i < 1024; i++){
+		all_stride[i] = 0;
+		all_stride_sum[i] = 0;
+	}
+}
 
 
 int get_stride(int inx){
@@ -251,10 +280,12 @@ int get_stride(int inx){
 	return max_num_stride;
 }
 
-int stride_sum = 0;
+static int stride_sum = 0;
+static int stride_sum_big = 0;
 
 
 int get_dominate_stride( int inx, int new_stride ){
+	stride_sum = 0;
 	int i , j;
 	int record_score_stride[128] = {0};
 	int max_ret_real = 0;
@@ -367,19 +398,35 @@ int get_stride_fast(int inx, int new_stride){
 #endif
 		}
 	}
+	int st_index = 0, ed_index = 0;
 	if( max_record_score != -1 ){
 		//find and caculate stride sum
 		stride_sum = 0;
 		if( max_score_last_index == -1 ){
+			st_index = max_score_index;
+			ed_index = LONGSTRIDE_STRIDEN - 3;
 			for(j = max_score_index ; j < LONGSTRIDE_STRIDEN - 2; j ++){
 				stride_sum += table_lsd[inx].stride_array[j];
 			}
 		}
 		else{
+			st_index = max_score_index;
+                        ed_index = max_score_last_index;
 			for( j = max_score_index ; j < max_score_last_index ; j++ ){
 				stride_sum += table_lsd[inx].stride_array[j];
 			}
 		}
+		
+	if(stride_sum > 256){
+		stride_sum_big ++;
+//		if(stride_sum_big % 2000 == 0){
+		printf("stride_sum_too_big = %d, pid = %d, two index [%d, %d]{", stride_sum_big, table_lsd[inx].pid, st_index, ed_index);
+		for(i = 0 ; i < LONGSTRIDE_STRIDEN - 1; i++)
+                        printf( "%d,", table_lsd[inx].stride_array[i] );
+                printf("%d }\n", new_stride);
+//		}
+	}
+		
 	}
 	if(max_ret_real > 64 ){
 		ret = max_ret_real - 128;
@@ -388,19 +435,60 @@ int get_stride_fast(int inx, int new_stride){
 #endif
 	if(ret == 0){
 		not_find_stride  = not_find_stride + 1;
-		if(not_find_stride % 5000 == 0){
-			printf("not_find_stride = %d, pid = %d {", not_find_stride, table_lsd[inx].pid);
+		ret = get_ripple_stride(inx, new_stride);
+		if(ret == 0)
+			not_find_ripple_stride ++;
+		else{
+			stride_sum = 1;
+		}
+//		if(not_find_stride % 5000 == 0){
+		if(not_find_ripple_stride % 5000 == 3999){
+//			printf("not_find_stride = %d, pid = %d {", not_find_stride, table_lsd[inx].pid);
+			printf("not_find_ripple-stride = %d, pid = %d {", not_find_ripple_stride, table_lsd[inx].pid);
 			for(i = 0 ; i < LONGSTRIDE_STRIDEN - 1; i++)
 				printf( "%d,", table_lsd[inx].stride_array[i] );
 			printf("%d }\n", new_stride);
 //			printf();
 		}
-
 	}
+
 	all_stride[ret] ++;
-	all_stride_sum[ stride_sum ] ++;
+	stride_sum_count[stride_sum] ++;
+//	all_stride_sum[ stride_sum ] ++;
 	return ret;
 }
+
+int min_stride = 2;
+
+int get_ripple_stride(int inx, int new_stride){
+	int ret = -1;
+	int find_ripple_num = 0;
+	int history_stride = new_stride;
+	int i ;
+	if(new_stride <= min_stride && new_stride >= -min_stride){
+		find_ripple_num ++;
+		history_stride = 0;
+	}
+	for(i = LONGSTRIDE_STRIDEN - 2 ; i >= 0; i --){
+		if(history_stride == 0)
+			history_stride = table_lsd[inx].stride_array[i];
+		else{
+			history_stride += table_lsd[inx].stride_array[i];
+			if( history_stride <= min_stride && history_stride >= -min_stride ){
+				find_ripple_num ++;
+				history_stride = 0;
+			}
+		}
+	}
+//	if(find_ripple_num > (LONGSTRIDE_STRIDEN / 3) ){
+	if(find_ripple_num > ((LONGSTRIDE_STRIDEN - 1)/ 2 - 1) ){
+		// find 
+		ret = 1;
+	}
+	return ret;
+
+}
+
 
 int index_to_stride[64][128] = {0};
 int index_to_stride_len[64] = {0};
@@ -565,8 +653,8 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 			int stride = (int)(table_lsd[inx].vpn[table_lsd[inx].size - 1] - table_lsd[inx].vpn[ 0 ]) / 7 ; 
 //			stride = caculate_stride(inx);
 //			stride = get_stride(inx);
-//			stride = get_stride_fast(inx, vpn - table_lsd[inx].vpn[table_lsd[inx].size - 1] );
-			stride = get_dominate_stride(inx, vpn - table_lsd[inx].vpn[table_lsd[inx].size - 1] );
+			stride = get_stride_fast(inx, vpn - table_lsd[inx].vpn[table_lsd[inx].size - 1] );
+//			stride = get_dominate_stride(inx, vpn - table_lsd[inx].vpn[table_lsd[inx].size - 1] );
 			record_stride(inx, vpn - table_lsd[inx].vpn[table_lsd[inx].size - 1]);
 //			stride = 1;
 //			if(stride >= 100 || stride <= -100)
@@ -740,12 +828,19 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 //				printf("now_average_len = %d, now_prefetch_buffer = %d\n  ",  now_average_len, now_prefetch_buffer);
 			}
 			print_t ++;
+			int distence = 1900;
 #ifdef PREFETCH_ON
 				// stride test
-//				if(stride != 0)
-//				store_to_pb(ppn, now_prefetch_step * stride_sum + stride); // useful
-				if(stride == 0) stride = 1;
-				store_to_pb(ppn, now_prefetch_step * stride); // for stream-based
+//				if(stride != 0 && false){
+				if(stride != 0 ){
+					 if(stride_sum <= now_prefetch_step && stride_sum != 0)
+						store_to_pb(ppn, distence / stride_sum * stride_sum+ stride); // useful
+					else
+						store_to_pb(ppn, distence + stride); // useful
+				}
+//				store_to_pb(ppn, 1900);
+//				if(stride == 0) stride = 1;
+//				store_to_pb(ppn, now_prefetch_step * stride); // for stream-based
 #endif
 
 #ifdef EVICT_ON
@@ -830,6 +925,7 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 		table_lsd[inx].timer[ table_lsd[inx].size ] = now_time;
 #endif
 
+		table_lsd[inx].history_size ++;
 		table_lsd[inx].size ++;
 		table_lsd[inx].current_time = now_time;
 //		sortLSDPage(inx);
@@ -881,6 +977,18 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 
 //		clear_record_stride(inx);
 
+		page_flow_length_distribute[ table_lsd[inx].history_size / page_flow_interval ] ++;
+		page_flow_length_distribute_number[ table_lsd[inx].history_size / page_flow_interval ] += table_lsd[inx].history_size;
+		if( table_lsd[inx].history_size / page_flow_interval == 0 ){
+			page_flow_length_distribute_smaller[ table_lsd[inx].history_size / smaller_page_interval ] ++;
+			page_flow_length_distribute_number_smaller[ table_lsd[inx].history_size / smaller_page_interval ] += table_lsd[inx].history_size;
+			
+		}
+
+		if( page_flow_length_distribute[ table_lsd[inx].history_size / page_flow_interval ] > max_page_flow_lengh ){
+			max_page_flow_lengh = page_flow_length_distribute[ table_lsd[inx].history_size / page_flow_interval ];
+		}
+		table_lsd[inx].history_size = 1;
 
 		table_lsd[inx].size = 1;
 		table_lsd[inx].pid = real_pid;
@@ -1016,17 +1124,54 @@ void print_stride(){
 			printf("stride = %d, num = %d\n", i , all_stride[i]);
 		}
 	}
+#if 0
 	for(i = 0; i < 1024; i ++){
 		if(all_stride_sum[i] != 0 && all_stride_sum[i] > 10){
-			printf("stride_sum = %d, num = %d\n", i , all_stride_sum[i]);
+			printf("all_stride_sum = %d, num = %d\n", i , all_stride_sum[i]);
 		}
 	}
+#endif
+	for(i = 0; i < 1024; i ++){
+		if(stride_sum_count[i] > 100){
+			printf("stride_sum_count = %d, num = %d\n", i , stride_sum_count[i]);
+		}
+	}
+	for(i = 0; i < LSDSTREAM_SIZE ; i++){
+		page_flow_length_distribute[ table_lsd[i].history_size / page_flow_interval ] ++;
+		page_flow_length_distribute_number[  table_lsd[i].history_size / page_flow_interval  ] += table_lsd[i].history_size;
+
+		if( table_lsd[i].history_size / page_flow_interval == 0 ){
+                        page_flow_length_distribute_smaller[ table_lsd[i].history_size / smaller_page_interval ] ++;
+                        page_flow_length_distribute_number_smaller[ table_lsd[i].history_size / smaller_page_interval ] += table_lsd[i].history_size;
+
+                }
+
+		if(max_page_flow_lengh < page_flow_length_distribute[ table_lsd[i].history_size / page_flow_interval ]){
+			max_page_flow_lengh = page_flow_length_distribute[ table_lsd[i].history_size / page_flow_interval ];
+		}
+
+	}
+	int j = 0;
+	for(i = 0; i < 10000; i ++){
+		if( page_flow_length_distribute[i] != 0  && page_flow_length_distribute_number[i]!= 0 )
+		printf("page flow len [%d~%d], number = %d , all page number = %d\n", i* page_flow_interval , (i + 1) * page_flow_interval , page_flow_length_distribute[i] , page_flow_length_distribute_number[i] );
+		if(i == 0){
+		for(j = 0 ; j < 20; j++){
+			if( page_flow_length_distribute_smaller[j]!= 0 && page_flow_length_distribute_number_smaller[j] != 0 ){
+				printf("*** page flow len[%d~%d], number = %d, all number = %d\n", j * smaller_page_interval , (j + 1) * smaller_page_interval, 
+				page_flow_length_distribute_smaller[j], page_flow_length_distribute_number_smaller[j] );
+			}
+		}
+		}
+	}
+
 //	printf("not_find_stride = %lu. \n", not_find_stride);
 	printf("not_find_stride = %d \n", not_find_stride);
+	printf("not_find_ripple_stride = %d \n", not_find_ripple_stride);
+	printf("stride_sum_big = %d\n", stride_sum_big);
+	printf("max_page_flow_lengh =%d\n", max_page_flow_lengh);
 	print_record_stride();
-
 	printf("\n\n");
-
 }
 
 

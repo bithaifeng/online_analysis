@@ -37,8 +37,10 @@ using namespace __gnu_cxx;
 //#define _GNU_SOURCE
 #define MAX_PPN ((66ULL << 30) >> 12)
 
- #define MONITOER_PREFETCH
+// #define MONITOER_PREFETCH
 #define USETIMER
+#define USING_BITMAP
+//#define USING_NUM_PREFETCH
 
 //#define STORE_FILE
 
@@ -60,16 +62,25 @@ extern volatile unsigned long latency_all;
 
 extern int insert_entry(unsigned long ppn, unsigned long time);
 
+extern int now_pid;
+extern unsigned long pgtable_transfer( unsigned long ppn );
 
 
 struct ppn2num_t{
-	unsigned char num;
+#ifdef USING_NUM_PREFETCH
+	unsigned char num; // using
+#endif
 //	unsigned long num;
 
 #ifdef MONITOER_PREFETCH
         unsigned char isprefetch;
 	unsigned long prefetch_time;
 #endif
+
+#ifdef USING_BITMAP
+	unsigned long bitmap;
+#endif
+
 #ifdef USETIMER
 	unsigned long timer;
 #endif
@@ -302,6 +313,7 @@ struct LSD_vpn{
 	unsigned long ppn[LONGSTRIDE_STRIDEN];
 #endif
 	int stride;
+	int history_size;
 #ifdef USE_TIMER
 	unsigned long timer[LONGSTRIDE_STRIDEN];
 #endif
@@ -339,6 +351,7 @@ extern char free_page_table_magic  ;
 extern char free_page_table_get_clear ;
 extern char free_page_table_get_clear_full ;
 
+extern void init_prefetch_structure();
 
 extern cpu_set_t mask_cpu_2;
 extern cpu_set_t mask_kt;
