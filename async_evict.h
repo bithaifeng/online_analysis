@@ -12,3 +12,6 @@ struct evict_transfer_entry_struct{
 	unsigned long value;
 };
 
+
+extern int classify_page( struct evict_transfer_entry_struct wait_tmp);
+

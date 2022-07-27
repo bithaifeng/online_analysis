@@ -10,9 +10,9 @@
 
 #define EVICT_ON
 
-#define USING_BITMAP
+//#define USING_BITMAP
 //#define USING_LRU
-//#define USING_RRIP
+#define USING_RRIP
 //#define USING_FIFO
 
 
@@ -32,7 +32,7 @@ extern void store_to_eb(unsigned long ppn, int inter_page);
 
 
 #define STORE_FILE
-#define USING_FASTSWAP
+//#define USING_FASTSWAP
 
 // #define use_stream_evict 1
 
@@ -48,7 +48,8 @@ extern void store_to_eb(unsigned long ppn, int inter_page);
 #define PREFETCH_CORE_ID 9
 
 //#define PREFETCH_CORE_ID 17
-#define ASYNC_EVICT_CORE_ID 18
+//#define ASYNC_EVICT_CORE_ID 18
+#define ASYNC_EVICT_CORE_ID 13 // for local evict
 
 
 #define EVICT_CORE_ID 19

@@ -2,6 +2,7 @@
 #include "config.h"
 #include "lt_profile.h"
 
+
 map<unsigned long, unsigned char> ppn2train_buffer;
 
 
@@ -18,6 +19,10 @@ int page_flow_length_distribute[10000] = {0};
 int page_flow_length_distribute_number[10000] = {0};
 int page_flow_length_distribute_smaller[20] = {0};
 int page_flow_length_distribute_number_smaller[20] = {0};
+int page_flow_classify[10000][6] = {0};
+int page_flow_classify_smaller[20][6] = {0};
+
+
 int max_page_flow_lengh = 0;
 
 unsigned long hot_physical_number = 0;
@@ -48,10 +53,11 @@ void filter_lru(unsigned long p_addr, unsigned long tt){
 	tmp_value.num ++;
 	if(tmp_value.num >= 8 ){
 		if( tt - tmp_value.timer >= (1ULL << 22)  ){
-			//send to prefetch or to train
+			;//send to prefetch or to train
+#ifndef USING_PAGE_DISTRIBUTION
 			if(ppn2pid[ppn] != 0&& ppn2pid[ppn] != now_pid)
                                 store_to_tb(ppn, tt);
-
+#endif
 		}
 		tmp_value.num = 0;
 		tmp_value.timer = tt;
@@ -132,8 +138,8 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 		store_to_tb(ppn, tt);
 #endif
 #ifdef USETIMER
-		if(duration_all - new_ppn[ppn].timer >= (1ULL << 20)){ //2GHZ ~ 1 seconed
-//		if(duration_all - new_ppn[ppn].timer >= (1ULL << 10)){ //2GHZ ~ 1 seconed // fot evict update
+//		if(duration_all - new_ppn[ppn].timer >= (1ULL << 20)){ //2GHZ ~ 1 seconed // for prefetch
+		if(duration_all - new_ppn[ppn].timer >= (1ULL << 10)){ //2GHZ ~ 1 seconed // fot evict update
 //		if(duration_all - new_ppn[ppn].timer >= (1ULL << 31)){ //2GHZ ~ 1 seconed
 		// if(duration_all - new_ppn[ppn].timer >= ( 5000 )){ //2GHZ ~ 1 seconed
 //		if(duration_all - new_ppn[ppn].timer >= (1ULL << 27)){ //2GHZ ~ 1 seconed
@@ -161,8 +167,10 @@ int filter_check(unsigned long p_addr, unsigned long tt){
 #endif
 			{
 //				store_to_pb(ppn, 1900);
-				store_to_tb(ppn, tt);
-//				store_to_eb(ppn, tt);				
+#ifndef USING_PAGE_DISTRIBUTION
+				//store_to_tb(ppn, tt);
+#endif
+				store_to_eb(ppn, tt);				
 				;
 			}
 		}
@@ -551,8 +559,12 @@ static inline __u64 get_cycles(void)
 
 
 
+//void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid){
+#ifdef USING_PAGE_DISTRIBUTION
+void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid, struct evict_transfer_entry_struct wait_tmp){
+#else
 void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid){
-//int InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid){
+#endif
 //	max_inter_page = using_inter_page;
 //	default_inter_page = using_inter_page;	
 
@@ -832,12 +844,14 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 #ifdef PREFETCH_ON
 				// stride test
 //				if(stride != 0 && false){
+#ifndef USING_PAGE_DISTRIBUTION
 				if(stride != 0 ){
 					 if(stride_sum <= now_prefetch_step && stride_sum != 0)
 						store_to_pb(ppn, distence / stride_sum * stride_sum+ stride); // useful
 					else
 						store_to_pb(ppn, distence + stride); // useful
 				}
+#endif
 //				store_to_pb(ppn, 1900);
 //				if(stride == 0) stride = 1;
 //				store_to_pb(ppn, now_prefetch_step * stride); // for stream-based
@@ -928,6 +942,12 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 		table_lsd[inx].history_size ++;
 		table_lsd[inx].size ++;
 		table_lsd[inx].current_time = now_time;
+#ifdef USING_PAGE_DISTRIBUTION
+		table_lsd[inx].page_classify[ classify_page( wait_tmp ) ] ++;
+#endif
+
+
+
 //		sortLSDPage(inx);
 		 if(table_lsd[inx].vpn[ 0 ]   < table_lsd[inx].start_vpn)
                         table_lsd[inx].start_vpn =  table_lsd[inx].vpn[ 0 ];
@@ -979,12 +999,23 @@ void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_ti
 
 		page_flow_length_distribute[ table_lsd[inx].history_size / page_flow_interval ] ++;
 		page_flow_length_distribute_number[ table_lsd[inx].history_size / page_flow_interval ] += table_lsd[inx].history_size;
+#ifdef USING_PAGE_DISTRIBUTION
+		for(int i = 0; i < 6; i++)
+			page_flow_classify[ table_lsd[inx].history_size / page_flow_interval ][i] += table_lsd[inx].page_classify[ i ];
+#endif
 		if( table_lsd[inx].history_size / page_flow_interval == 0 ){
 			page_flow_length_distribute_smaller[ table_lsd[inx].history_size / smaller_page_interval ] ++;
 			page_flow_length_distribute_number_smaller[ table_lsd[inx].history_size / smaller_page_interval ] += table_lsd[inx].history_size;
-			
+#ifdef USING_PAGE_DISTRIBUTION
+			for(int i = 0; i < 6; i++)
+				page_flow_classify_smaller[ table_lsd[inx].history_size / smaller_page_interval ][i] += table_lsd[inx].page_classify[ i ];
+#endif
 		}
 
+#ifdef USING_PAGE_DISTRIBUTION
+		for(int i = 0; i < 6; i++)
+			table_lsd[inx].page_classify[ i ] = 0;
+#endif
 		if( page_flow_length_distribute[ table_lsd[inx].history_size / page_flow_interval ] > max_page_flow_lengh ){
 			max_page_flow_lengh = page_flow_length_distribute[ table_lsd[inx].history_size / page_flow_interval ];
 		}
@@ -1117,7 +1148,7 @@ int insert_entry(unsigned long ppn, unsigned long time){
 
 
 void print_stride(){
-	int i = 0;;
+	int i = 0, j = 0 , z = 0 ;
 	printf("*********  stirde  ***********\n");
 	for(i = 0; i < 1024; i ++){
 		if(all_stride[i] != 0 && all_stride[i] > 10){
@@ -1140,9 +1171,21 @@ void print_stride(){
 		page_flow_length_distribute[ table_lsd[i].history_size / page_flow_interval ] ++;
 		page_flow_length_distribute_number[  table_lsd[i].history_size / page_flow_interval  ] += table_lsd[i].history_size;
 
+#ifdef USING_PAGE_DISTRIBUTION
+		for(j = 0; j < 6; j++)
+			page_flow_classify[ table_lsd[ i ].history_size / page_flow_interval ][j] += table_lsd[ i ].page_classify[ j ];
+#endif
+
+
 		if( table_lsd[i].history_size / page_flow_interval == 0 ){
                         page_flow_length_distribute_smaller[ table_lsd[i].history_size / smaller_page_interval ] ++;
                         page_flow_length_distribute_number_smaller[ table_lsd[i].history_size / smaller_page_interval ] += table_lsd[i].history_size;
+
+#ifdef USING_PAGE_DISTRIBUTION
+			for(j = 0; j < 6; j++)
+				page_flow_classify_smaller[ table_lsd[i].history_size / smaller_page_interval ][ j ] += table_lsd[ i ].page_classify[ j ];		
+
+#endif
 
                 }
 
@@ -1151,15 +1194,28 @@ void print_stride(){
 		}
 
 	}
-	int j = 0;
 	for(i = 0; i < 10000; i ++){
-		if( page_flow_length_distribute[i] != 0  && page_flow_length_distribute_number[i]!= 0 )
+		if( page_flow_length_distribute[i] != 0  && page_flow_length_distribute_number[i]!= 0 ){
 		printf("page flow len [%d~%d], number = %d , all page number = %d\n", i* page_flow_interval , (i + 1) * page_flow_interval , page_flow_length_distribute[i] , page_flow_length_distribute_number[i] );
+#ifdef USING_PAGE_DISTRIBUTION
+		printf("  $$$");
+		for(j = 0; j < 6; j++)
+			printf(" {%d, %d}  ", j, page_flow_classify[ i ][ j ]);
+		printf("\n");
+#endif
+		}
+
 		if(i == 0){
 		for(j = 0 ; j < 20; j++){
 			if( page_flow_length_distribute_smaller[j]!= 0 && page_flow_length_distribute_number_smaller[j] != 0 ){
 				printf("*** page flow len[%d~%d], number = %d, all number = %d\n", j * smaller_page_interval , (j + 1) * smaller_page_interval, 
 				page_flow_length_distribute_smaller[j], page_flow_length_distribute_number_smaller[j] );
+#ifdef USING_PAGE_DISTRIBUTION
+				printf("  $$$$$");
+		                for(z = 0; z < 6; z++)
+					printf(" {%d, %d}  ", j, page_flow_classify_smaller[ j ][ z ]);
+				printf("\n");
+#endif
 			}
 		}
 		}

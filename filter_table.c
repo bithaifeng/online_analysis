@@ -61,6 +61,7 @@ void filter_table( unsigned long p_addr, unsigned long tt ){
 #define RESERVED_BITS 4
 
 void multi_filter_table( unsigned long p_addr, unsigned long tt ){
+#ifdef USING_BITMAP
 	int ret = -1;
         unsigned long ppn = p_addr >> 12;
 	unsigned long cache_line_offset = (p_addr & 0xfff) >> 6;
@@ -102,7 +103,10 @@ void multi_filter_table( unsigned long p_addr, unsigned long tt ){
 				struct evict_transfer_entry_struct tmp;
 				tmp.ppn = ppn;
 				tmp.value = value;
-				store_to_eb(tmp);
+//				store_to_eb(tmp);
+#ifdef USING_PAGE_DISTRIBUTION
+				store_to_tb(ppn, tt, tmp);
+#endif
 #else
 				store_to_eb(ppn, tt);
 #endif
@@ -115,7 +119,7 @@ void multi_filter_table( unsigned long p_addr, unsigned long tt ){
 		} 
 	}
 //	printf("bitmap = 0x%lx\n", new_ppn[ppn].bitmap);
-
+#endif
 }
 
 

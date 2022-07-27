@@ -548,8 +548,10 @@ int pb_w_ptr_pid,pb_r_ptr_pid;
 //std::atomic < int > tb_r_ptr;
 volatile unsigned long  tb_w_ptr, tb_r_ptr;
 
+
 volatile unsigned long training_buffer[TRAINING_BUFFER_SIZE] = {0};
 volatile unsigned long training_time[TRAINING_BUFFER_SIZE] = {0};
+struct evict_transfer_entry_struct training_transfer[TRAINING_BUFFER_SIZE] = {0};
 
 
 
@@ -890,7 +892,11 @@ void store_to_pb(unsigned long ppn, int inter_page){
 }
 
 //void store_to_tb(unsigned long vpn){
+#ifdef USING_PAGE_DISTRIBUTION
+void store_to_tb(unsigned long ppn, unsigned long time, struct evict_transfer_entry_struct transfer_entry){
+#else
 void store_to_tb(unsigned long ppn, unsigned long time){
+#endif
 	store_to_tb_num ++;
 //	if(store_to_tb_num % 7 == 1) return;
 	if( tb_w_ptr - tb_r_ptr > TRAINING_BUFFER_SIZE ){
@@ -900,6 +906,9 @@ void store_to_tb(unsigned long ppn, unsigned long time){
 //	training_buffer[ tb_w_ptr.fetch_add(1) % TRAINING_BUFFER_SIZE ] = vpn;
 	training_buffer[ tb_w_ptr % TRAINING_BUFFER_SIZE ] = ppn;
 	training_time[ tb_w_ptr % TRAINING_BUFFER_SIZE ] = time;
+#ifdef USING_PAGE_DISTRIBUTION
+	training_transfer[ tb_w_ptr % TRAINING_BUFFER_SIZE ] = transfer_entry;
+#endif
 	tb_w_ptr ++;
 
 }
@@ -931,8 +940,10 @@ void training_seek(){
 				;
 				print_round ++;
 				// if(print_round % 20 == 1)
+#ifndef USING_PAGE_DISTRIBUTION
 				     printf("    <train buffer> len = %lu\n", tmp_tb_len);
 				tb_r_ptr += (tmp_tb_len / 2);
+#endif
 			}
 			
 			print_times_train ++;
@@ -947,6 +958,10 @@ void training_seek(){
 			
                         unsigned long tmp_ppn = training_buffer[tb_r_ptr % TRAINING_BUFFER_SIZE];
 			unsigned long tmp_time = training_time[tb_r_ptr % TRAINING_BUFFER_SIZE];
+#ifdef USING_PAGE_DISTRIBUTION
+			struct evict_transfer_entry_struct tmp_evict_buffer_struct = training_transfer[ tb_r_ptr % TRAINING_BUFFER_SIZE ];
+#endif
+
 			tb_r_ptr ++;
 			//check is not necessary
 			if( print_ti > 5){
@@ -990,7 +1005,11 @@ void training_seek(){
 				}
 
 //				InsertNewLSD_vpn(tmp_ppn, ppn2vpn[tmp_ppn], tmp_time, ppn2pid[tmp_ppn]);
+#ifdef USING_PAGE_DISTRIBUTION
+				InsertNewLSD_vpn(tmp_ppn, vpn_d, tmp_time, pid_d, tmp_evict_buffer_struct);
+#else
 				InsertNewLSD_vpn(tmp_ppn, vpn_d, tmp_time, pid_d);
+#endif
 			}
 #ifdef PRINT_TRAIN_FLAG
 			ed = get_cycles();
@@ -1944,7 +1963,7 @@ void analysis_trace_buff(unsigned long long start_addr, unsigned long long read_
 //		printf("round %d,  use %lu cycles , per Byte use %lu cycles \n", times_use, end_time - start_time, (end_time - start_time) / read_len);
 		unsigned long tmp_ans = (end_time - start_time) / real_analysis_num;
 //		if(tmp_ans > 6 )
-//		printf("[%8lu : %8lu] round %d,  use %lu cycles , every 6 Bytes use %.3lf cycles \n", get_lru_size(), memory_buffer_start_addr[2],times_use, end_time - start_time, (double)(end_time - start_time) / (double)real_analysis_num);
+		printf("[%8lu : %8lu] round %d,  use %lu cycles , every 6 Bytes use %.3lf cycles \n", get_lru_size(), memory_buffer_start_addr[2],times_use, end_time - start_time, (double)(end_time - start_time) / (double)real_analysis_num);
 		start_time = get_cycles();
 		real_analysis_num = 0;
 		
@@ -2066,8 +2085,8 @@ void analysis_single_trace(char *trace_start){
 
 //	filter_table( paddr, duration_all );
 
-	multi_filter_table(paddr, duration_all);
-//	filter_check(paddr, duration_all); // for prefetch and traditional eviction
+//	multi_filter_table(paddr, duration_all);
+	filter_check(paddr, duration_all); // for prefetch and traditional eviction
 	return 0;
 //	insert_entry(paddr >> 12, duration_all);
 //	return 0; return ;
@@ -2552,10 +2571,12 @@ int main(int argc, char **argv)
 //	multi_filter_table(64, 1);
 //	printf("value = 0x%lu\n", new_ppn[moniter_ppn].bitmap);
 	int ti = 2;
+#ifdef USING_BITMAP
 	for(ti = 0;ti < 64; ti ++){
 		multi_filter_table(ti * 64, 1);
 		printf("value = 0x%lu, NUM = %lu, 0X%lx\n", new_ppn[moniter_ppn].bitmap, new_ppn[moniter_ppn].bitmap >> (60), 0xFFFFFFFFFFFFFFF& new_ppn[moniter_ppn].bitmap);
 	}
+#endif
 
 //	return 0;
 

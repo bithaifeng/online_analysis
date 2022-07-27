@@ -39,13 +39,14 @@ using namespace __gnu_cxx;
 
 // #define MONITOER_PREFETCH
 #define USETIMER
-#define USING_BITMAP
-//#define USING_NUM_PREFETCH
+//#define USING_BITMAP
+#define USING_NUM_PREFETCH
 
 //#define STORE_FILE
 
 
 #define PREFETCH_BUFFER_PTHREAD 300000
+//#define USING_PAGE_DISTRIBUTION
 
 //#define OTHERPPN
 
@@ -275,7 +276,11 @@ extern struct ppn2num_t * new_ppn;
 #else
 extern struct ppn2num_t new_ppn[MAX_PPN];
 #endif
+#ifdef USING_PAGE_DISTRIBUTION
+extern void store_to_tb(unsigned long ppn, unsigned long time, struct evict_transfer_entry_struct transfer_entry);
+#else
 extern void store_to_tb(unsigned long ppn, unsigned long time);
+#endif
 extern int delta(unsigned long a,unsigned long b);
 extern int using_inter_page;
 
@@ -286,8 +291,12 @@ extern struct prefetch_task prefetcher_task_set[max_prefetcher_count];
 extern volatile unsigned long  tb_w_ptr, tb_r_ptr;
 
 #define STEP_USE 500
-
+#ifdef USING_PAGE_DISTRIBUTION
+extern void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid, struct evict_transfer_entry_struct wait_tmp);
+#else
 extern void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long now_time, int real_pid);
+#endif
+
 #define LONGSTRIDE_STRIDEN 8
 //#define LONGSTRIDE_STRIDEN 24
 #define Stride_Array_len (LONGSTRIDE_STRIDEN - 1)
@@ -301,6 +310,7 @@ extern void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long
 
 #define USE_TIMER
 #define USE_STRIDE
+
 
 
 struct LSD_vpn{
@@ -320,6 +330,10 @@ struct LSD_vpn{
 	
 #ifdef USE_STRIDE
 	int stride_array[ LONGSTRIDE_STRIDEN ];
+#endif
+
+#ifdef USING_PAGE_DISTRIBUTION
+	unsigned long page_classify[6];  // when evict, clear it
 #endif
 
 //	unsigned long accessn[LONGSTRIDE_STRIDEN];

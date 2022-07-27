@@ -65,8 +65,8 @@ unsigned long max_evicting_len = 0;
 unsigned long max_evictor_len = 0;
 
 
-#define MIN_SIZE 512
-//#define MIN_SIZE 2500
+//#define MIN_SIZE 512
+#define MIN_SIZE 2500
 //#define MIN_SIZE 2524
 
 int mem_pressure_check_num[2] = {0};
@@ -187,7 +187,9 @@ unsigned long st = 0, ed = 0;
 unsigned long all_time = 0;
 
 
-void classify_page( struct evict_transfer_entry_struct wait_tmp){
+int classify_page( struct evict_transfer_entry_struct wait_tmp){
+	int ret = 0;
+
 	if(call_classify_page_num == 0) st = get_cycles();
 	st = get_cycles();
 	unsigned long value = wait_tmp.value;
@@ -250,33 +252,44 @@ void classify_page( struct evict_transfer_entry_struct wait_tmp){
 	}
 	if( max_ladder_len >= 7 ){
 		page_classify[ PAGE_ATTRITUTE_SCAN ] ++;
+		ret = PAGE_ATTRITUTE_SCAN;
 	}
 	else if( ladder[1][1] >= 7){
 		if(ladder[0][1] >= 6 || ladder[0][2] >= 6 || ladder[0][3] >= 6 ){
 			//stride page
 			page_classify[ PAGE_ATTRITUTE_STRIDE_L1 ] ++;	
+			ret = PAGE_ATTRITUTE_STRIDE_L1;
 		}
-		else
+		else{
 			page_classify[ PAGE_ATTRITUTE_STRIDE_L1_NOT ] ++;	
+			ret = PAGE_ATTRITUTE_STRIDE_L1_NOT;
+		}
 	}
 	else if( ladder[1][2] >= 4 ){
 		if(ladder[0][1] >= 3 || ladder[0][2] >= 3 || ladder[0][3] >= 3 ){
 			// stride page
 			page_classify[ PAGE_ATTRITUTE_STRIDE_L2 ] ++;
+			ret = PAGE_ATTRITUTE_STRIDE_L2;
 		}
-		else 
+		else {
 			page_classify[ PAGE_ATTRITUTE_STRIDE_L2_NOT ] ++;
+			ret = PAGE_ATTRITUTE_STRIDE_L2_NOT;
+		}
 	}
-	else
+	else{
 			page_classify[ PAGE_ATTRITUTE_RANDOM ] ++;
+			ret = PAGE_ATTRITUTE_RANDOM;
+	}
 	ed = get_cycles();
 	all_time += (ed - st);
+	return ret;
 
 }
 
 struct evict_transfer_entry_struct tmp_evict_tes;
 
 void async_evict_seek(){
+	int i, j;
 	unsigned long st,ed;
 	printf("$$$ init async_seek\n");
 	int ret = -1;
@@ -340,9 +353,12 @@ void async_evict_seek(){
 				//maybe print some msg
 				;
 			}
+			for(i = 0; i < tmp_tb_len; i++)
+			{
+
 			st = get_cycles();
-			unsigned long tmp_ppn = evict_buffer_train[ eb_r_ptr % EVICT_BUFFER_SIZE ];
-			eb_r_ptr ++;
+			unsigned long tmp_ppn = evict_buffer_train[ (eb_r_ptr + i ) % EVICT_BUFFER_SIZE ];
+//			eb_r_ptr ++;
 			// update lru
 #ifdef USING_LRU
 			ret = hot_page_lru_control_return(tmp_ppn);
@@ -364,6 +380,8 @@ void async_evict_seek(){
 			}
 			else record_insert_ret[ret] ++;
 
+			}
+			eb_r_ptr += ( tmp_tb_len );
 
 			st = get_cycles();
 			local_mem_pressure_check();
@@ -376,7 +394,7 @@ void async_evict_seek(){
 #endif
 #endif
 		st = get_cycles();
-//		local_mem_pressure_check();
+		local_mem_pressure_check();
 		ed = get_cycles(); 
                 tmp_rdtsc[1][0] += (ed - st);
                 tmp_rdtsc[1][1] ++;
@@ -390,6 +408,11 @@ void init_async_evict(){
 	CPU_ZERO(&mask_cpu_async_evict);
 	CPU_SET(ASYNC_EVICT_CORE_ID , &mask_cpu_async_evict);
 	pthread_setaffinity_np(tid_async_evict, sizeof(mask_cpu_async_evict), &mask_cpu_async_evict);
+#ifdef USING_RRIP
+	init_rrip_structure();
+#endif
+
+
 }
 
 
@@ -401,7 +424,7 @@ void print_async_msg(){
 		else printf("id = %d, no use\n", i);
 //	printf("hot_page_lru_control average consume %lu, check_state average consume = %lu\n",tmp_rdtsc[0][0]/tmp_rdtsc[0][1],	tmp_rdtsc[1][0]/ tmp_rdtsc[1][1] );
 	}
-	printf("max_evicting_len = %lu, w_ptr = %lu, r_ptr = %lu, max_evictor_len = %lu\n", max_evicting_len, eb_w_ptr, eb_r_ptr, max_evictor_len);
+	printf("store_to_eb's max_len = %lu, w_ptr = %lu, r_ptr = %lu, max_evictor's queue len = %lu\n", max_evicting_len, eb_w_ptr, eb_r_ptr, max_evictor_len);
 	for(i = 0 ; i < 2; i++)
 		printf("id = %d, mem_pressure_check_num = %d\n", i, mem_pressure_check_num[i]);
 	for(i = 0 ; i < 3; i++)
@@ -417,6 +440,10 @@ void print_async_msg(){
 			printf("## page identify, i = %d, number = %lu\n", i, page_classify[i]);
 		}
 	}
+#ifdef USING_RRIP
+	printf_rrip_state();
+#endif
+	
 
 }
 

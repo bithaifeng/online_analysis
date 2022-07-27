@@ -112,9 +112,13 @@ int hot_page_rrip_control_return(unsigned long ppn){
 	return 0;
 }
 
-void rotate_rrip_group(){
+int rotate_rrip_group(){
 	int i = 0;
+	int ret_all = 0;
+
 	for(i = (1 << RRIP_BITS) - 1; i > 0; i --){
+		if( maintain_number[i - 1] != 0)
+			ret_all = 1;
 		maintain_number[i] = maintain_number[i - 1];
 		
 //		head[i].prev = head[i - 1].prev;
@@ -144,6 +148,7 @@ void rotate_rrip_group(){
 		}
 	}
 	maintain_number[0] = 0;
+	return ret_all;
 }
 
 int flag_p = 0;
@@ -157,6 +162,7 @@ struct page_list* get_tail_and_delete(int group_id){
 	tmp = tail_rrip[group_id].prev;	
 	list_del( tmp );
 	maintain_number[group_id] --;
+	ppn2groupid[tmp->ppn] = (1 << RRIP_BITS); //reset RRIP
 
 	if(maintain_number[group_id] < 0 && flag_p <=5){
 		flag_p ++;
@@ -169,9 +175,13 @@ struct page_list* get_tail_and_delete(int group_id){
 
 unsigned long get_ppn_from_rrip(){
 	unsigned long ppn = 0;
+	unsigned long ret = 0;
 	while(maintain_number[(1 << RRIP_BITS) - 1] == 0){
 		//decrement RRIP for each group
-		rotate_rrip_group();
+		if( rotate_rrip_group() == 0){
+			//no page in list
+			return ret;
+		}
 	}
 	//delete a page from largest RRIP list
 	struct page_list * page;
@@ -182,6 +192,16 @@ unsigned long get_ppn_from_rrip(){
 		return 0;
 	}
 //	mem_using --;
-	lt_mem_using --;
+//	lt_mem_using --;
 	return page->ppn;
 }
+
+void printf_rrip_state(){
+	int i = 0;
+	for(i = 0; i < (1 << RRIP_BITS) - 1; i++){
+		printf("rrip id = %d, number = %lu\n", i, maintain_number[i]);
+	}
+
+}
+
+
