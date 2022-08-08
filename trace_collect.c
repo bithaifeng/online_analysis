@@ -927,11 +927,17 @@ void training_seek(){
 			if(tmp_tb_len > max_training_len)
 				max_training_len = tmp_tb_len;
 //#define LSDSTREAM_SIZE 64
-			if(tmp_tb_len > 500){
+//			if(tmp_tb_len > 500000){
+#ifdef PRINT_PAGE_FLOW
+			if(tmp_tb_len > 500000)
+#else
+			if(tmp_tb_len > 500)
+#endif
+			{
 				;
 				print_round ++;
-				// if(print_round % 20 == 1)
-				     printf("    <train buffer> len = %lu\n", tmp_tb_len);
+				if(print_round % 100 == 1)
+			        	printf("    <train buffer> len = %lu\n", tmp_tb_len);
 				tb_r_ptr += (tmp_tb_len / 2);
 			}
 			
@@ -1828,7 +1834,6 @@ void analysis_trace_buff(unsigned long long start_addr, unsigned long long read_
 		flag_skip = 1;
 		min_process_trace = MIN_PROCESS / 6;
 	}
-//	flag_skip = 0;
 
 
 	//解决有剩的，但是新的和剩的无法拼接成一个trace
@@ -2066,8 +2071,8 @@ void analysis_single_trace(char *trace_start){
 
 //	filter_table( paddr, duration_all );
 
-	multi_filter_table(paddr, duration_all);
-//	filter_check(paddr, duration_all); // for prefetch and traditional eviction
+//	multi_filter_table(paddr, duration_all);
+	filter_check(paddr, duration_all); // for prefetch and traditional eviction
 	return 0;
 //	insert_entry(paddr >> 12, duration_all);
 //	return 0; return ;

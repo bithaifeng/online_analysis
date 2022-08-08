@@ -2,13 +2,13 @@
 #define HMTT_CONFIG_H
 
 
-// #define PREFETCH_ON
+ #define PREFETCH_ON
 
 // #define exit_prefetch_when_nomem
 
+//#define PRINT_PAGE_FLOW
 
-
-#define EVICT_ON
+//#define EVICT_ON
 
 #define USING_BITMAP
 //#define USING_LRU
@@ -41,7 +41,8 @@ extern void store_to_eb(unsigned long ppn, int inter_page);
 
 
 
-#define max_prefetcher_count 5
+#define max_prefetcher_count 3
+//#define max_prefetcher_count 3
 
 #define PREFETCH_SEEK_CORE 16
 //#define PREFETCH_CORE_ID 7

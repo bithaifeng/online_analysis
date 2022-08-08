@@ -37,7 +37,16 @@ using namespace __gnu_cxx;
 //#define _GNU_SOURCE
 #define MAX_PPN ((66ULL << 30) >> 12)
 
-// #define MONITOER_PREFETCH
+#define SIMPLE_STREAM
+//#define LADDER
+//#define LADDER_RIPPLE
+
+#ifdef LADDER_RIPPLE
+#define USING_RIIPLE
+#endif
+
+
+ #define MONITOER_PREFETCH
 #define USETIMER
 #define USING_BITMAP
 //#define USING_NUM_PREFETCH
@@ -293,13 +302,15 @@ extern void InsertNewLSD_vpn(unsigned long ppn, unsigned long vpn, unsigned long
 #define Stride_Array_len (LONGSTRIDE_STRIDEN - 1)
 //#define LONGSTRIDE_STRIDEN 5
 #define STRIDEN LONGSTRIDE_STRIDEN
-//#define LSDSTREAM_SIZE 64
-#define LSDSTREAM_SIZE 32
+#define LSDSTREAM_SIZE 64
+//#define LSDSTREAM_SIZE 96
+//#define LSDSTREAM_SIZE 32
 #define PREFETCH_TIME (40000ULL)
 
 //#define LSDUSE_PPN
 
 #define USE_TIMER
+
 #define USE_STRIDE
 
 
@@ -326,6 +337,10 @@ struct LSD_vpn{
 //	int access_times;
 
 //	map<unsigned long, int> vpn2value;
+	int stream_num;
+	int ladder_num;
+	int ripple_num;
+	int no_paatern;
 
 	unsigned long current_time;
 
